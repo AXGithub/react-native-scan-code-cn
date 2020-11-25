@@ -10,7 +10,7 @@ import {
     Platform,
 } from 'react-native'
 
-const BarcodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.CaptureModule
+const BarcodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.RNScanCode
 
 
 export default class RNScanCode extends Component {
@@ -34,5 +34,5 @@ export default class RNScanCode extends Component {
     }
 }
 
-const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'ScanCode' : 'CaptureView', RNScanCode)
+const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'ScanCode' : 'RNScanCode', RNScanCode)
 

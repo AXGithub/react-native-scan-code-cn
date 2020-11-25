@@ -10,10 +10,12 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.annotations.ReactProp;
 
 public class RCTScanCodeManager extends SimpleViewManager<CaptureActivity> {
 
     public static final String REACT_CLASS = "RNScanCode";
+
     private float density;
     CaptureActivity cap;
 
@@ -31,9 +33,9 @@ public class RCTScanCodeManager extends SimpleViewManager<CaptureActivity> {
         return cap;
     }
 
-    @ReactMethod
-    public void sampleMethod(String stringArgument, int numberArgument, Callback callback) {
-        // TODO: Implement some actually useful functionality
-        callback.invoke("Received numberArgument: " + numberArgument + " stringArgument: " + stringArgument);
+    @ReactProp(name = "barCodeTypes")
+    public void setBarCodeTypes(CaptureActivity captureActivity) {
+        captureActivity.setBarCodeTypes();
     }
+
 }
