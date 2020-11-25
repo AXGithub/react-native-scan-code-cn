@@ -22,16 +22,16 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import com.example.demo2.R;
+import com.reactlibrary.R;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
-import com.google.zxing.activity.CaptureActivity;
-import com.google.zxing.camera.CameraManager;
-import com.google.zxing.camera.PlanarYUVLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
+import com.reactlibrary.CaptureActivity;
+import com.reactlibrary.camera.CameraManager;
+import com.reactlibrary.camera.PlanarYUVLuminanceSource;
 
 import java.util.Hashtable;
 
@@ -51,14 +51,10 @@ final class DecodeHandler extends Handler {
 
   @Override
   public void handleMessage(Message message) {
-    switch (message.what) {
-      case R.id.decode:
-        //Log.d(TAG, "Got decode message");
-        decode((byte[]) message.obj, message.arg1, message.arg2);
-        break;
-      case R.id.quit:
-        Looper.myLooper().quit();
-        break;
+    if (message.what == R.id.decode) {//Log.d(TAG, "Got decode message");
+      decode((byte[]) message.obj, message.arg1, message.arg2);
+    } else if (message.what == R.id.quit) {
+      Looper.myLooper().quit();
     }
   }
 

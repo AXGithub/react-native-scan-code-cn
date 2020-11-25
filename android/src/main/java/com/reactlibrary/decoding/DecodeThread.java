@@ -21,7 +21,7 @@ import android.os.Looper;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
-import com.google.zxing.activity.CaptureActivity;
+import com.reactlibrary.CaptureActivity;
 
 import java.util.Hashtable;
 import java.util.Vector;
