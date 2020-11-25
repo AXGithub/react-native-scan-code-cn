@@ -1,38 +1,34 @@
-import React, {
-    PropTypes,
-    Component,
-} from 'react'
+import React, { PropTypes } from 'react'
 import {
     View,
     requireNativeComponent,
     NativeModules,
-    AppState,
     Platform,
 } from 'react-native'
 
-const BarcodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.CaptureModule
+const ScanCodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.RNScanCode
 
-
-export default class RNScanCode extends Component {
-
+export default class RNScanCode extends React.Component {
     static defaultProps = {
-        barCodeTypes: Object.values(BarcodeManager.barCodeTypes)
+        barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
     }
 
     static propTypes = {
         ...View.propTypes,
         onBarCodeRead: PropTypes.func.isRequired,
-        barCodeTypes: PropTypes.array
+        barCodeTypes: PropTypes.arrayOf(PropTypes.string)
     }
 
     render() {
         return (
             <NativeBarCode
                 {...this.props}
-            />
+            >
+                {this.props.children}
+            </NativeBarCode>
         )
     }
 }
 
-const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'ScanCode' : 'CaptureView', RNScanCode)
+const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'ScanCode' : 'RNScanCode', RNScanCode)
 
