@@ -6,6 +6,11 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F5693531256BBE8000683919 /* ScanCode.m in Sources */ = {isa = PBXBuildFile; fileRef = F569352F256BBE8000683919 /* ScanCode.m */; };
+		F5866C3F256E373A00CF213F /* RCTScanCodeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F5866C3D256E373A00CF213F /* RCTScanCodeManager.m */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		58B511D91A9E6C8500147676 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -20,6 +25,10 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libScanCode.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libScanCode.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F569352F256BBE8000683919 /* ScanCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScanCode.m; sourceTree = "<group>"; };
+		F5693530256BBE8000683919 /* ScanCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScanCode.h; sourceTree = "<group>"; };
+		F5866C3D256E373A00CF213F /* RCTScanCodeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTScanCodeManager.m; sourceTree = "<group>"; };
+		F5866C3E256E373A00CF213F /* RCTScanCodeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTScanCodeManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +53,10 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				F5866C3E256E373A00CF213F /* RCTScanCodeManager.h */,
+				F5866C3D256E373A00CF213F /* RCTScanCodeManager.m */,
+				F5693530256BBE8000683919 /* ScanCode.h */,
+				F569352F256BBE8000683919 /* ScanCode.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,6 +118,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5693531256BBE8000683919 /* ScanCode.m in Sources */,
+				F5866C3F256E373A00CF213F /* RCTScanCodeManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
