@@ -156,6 +156,10 @@ public class CaptureActivity extends FrameLayout implements Callback {
         return handler;
     }
 
+    public void setBarCodeTypes() {
+
+    }
+
 //    /**
 //     *  闪光灯开关按钮
 //     */
