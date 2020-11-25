@@ -10,12 +10,12 @@ const ScanCodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager 
 
 export default class RNScanCode extends React.Component {
     static defaultProps = {
-        barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
+        // barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
     }
 
     static propTypes = {
         ...View.propTypes,
-        onBarCodeRead: PropTypes.func.isRequired,
+        // onBarCodeRead: PropTypes.func.isRequired,
         barCodeTypes: PropTypes.arrayOf(PropTypes.string)
     }
 

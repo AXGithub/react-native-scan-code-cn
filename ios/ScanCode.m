@@ -77,7 +77,8 @@
                 [self.metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
                 [self.session addOutput:self.metadataOutput];
                 // 设置输出类型 有二维码 条形码等
-                [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+//                [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+                [self.metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
                 // 设置全屏扫描
                 output.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
             }
