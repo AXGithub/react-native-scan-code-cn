@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import {
     View,
     requireNativeComponent,
@@ -6,17 +7,18 @@ import {
     Platform,
     Dimensions,
     StatusBar,
-    DeviceEventEmitter
+    DeviceEventEmitter,
+    ViewPropTypes
 } from 'react-native'
 
-// const ScanCodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.RNScanCode
+const ScanCodeManager = NativeModules.RNScanCode
 
-const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'ScanCode' : 'RNScanCode', RNScanCode)
+const NativeBarCode = requireNativeComponent('RNScanCode')
 
-export default class RNScanCode extends React.Component {
-    // static defaultProps = {
-    //     barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
-    // }
+export class RNScanCode extends React.Component {
+    static defaultProps = {
+        // barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
+    }
 
     // static propTypes = {
     //     ...View.propTypes,

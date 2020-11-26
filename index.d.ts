@@ -16,7 +16,7 @@ type BarCodeType = Readonly<{
     interleaved2of5: any;
     itf14: any;
     datamatrix: any;
-  }>;
+}>;
 
 export interface Constants {
     BarCodeType: BarCodeType;
@@ -38,6 +38,6 @@ export interface RNScanCodeProps extends ViewProps {
 }
 
 
-export default class RNScanCode extends Component<RNScanCodeProps> {
-    static constants: Constants;
+export class RNScanCode extends Component<RNScanCodeProps> {
+    static Constants: Constants;
 }
