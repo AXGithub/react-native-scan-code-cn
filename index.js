@@ -4,7 +4,8 @@ import {
     requireNativeComponent,
     NativeModules,
     Platform,
-    Dimensions
+    Dimensions,
+    StatusBar
 } from 'react-native'
 
 // const ScanCodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.RNScanCode
@@ -25,10 +26,11 @@ export default class RNScanCode extends React.Component {
     render() {
         const { children, style, ...otherProps } = this.props
         const {width, height} =  Dimensions.get('window')
+        let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
         return (
             <View style={{flex: 1, backgroundColor: 'green'}}>
                 <NativeBarCode
-                    style={{width, height}}
+                    style={{width, height: _height}}
                     {...otherProps}
                 />
                 <View style={[{ position: 'absolute', top: 0, left: 0 }, style]}>
