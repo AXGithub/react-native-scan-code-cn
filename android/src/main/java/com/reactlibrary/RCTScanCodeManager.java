@@ -33,9 +33,9 @@ public class RCTScanCodeManager extends SimpleViewManager<CaptureActivity> {
         return cap;
     }
 
-    @ReactProp(name = "barCodeTypes")
-    public void setBarCodeTypes(CaptureActivity captureActivity) {
-        captureActivity.setBarCodeTypes();
-    }
+//    @ReactProp(name = "barCodeTypes")
+//    public void setBarCodeTypes(CaptureActivity captureActivity) {
+//        captureActivity.setBarCodeTypes();
+//    }
 
 }

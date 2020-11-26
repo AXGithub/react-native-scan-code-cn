@@ -60,6 +60,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
     protected void init() {
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.scanner_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
+//        this.activity.addContentView(surfaceView);
         if (hasSurface) {
             initCamera(surfaceHolder);
         } else {
