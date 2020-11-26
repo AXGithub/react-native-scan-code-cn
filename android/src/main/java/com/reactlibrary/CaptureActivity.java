@@ -1,6 +1,8 @@
 package com.reactlibrary;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,12 +15,14 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactContext;
 import com.reactlibrary.R;
@@ -49,6 +53,8 @@ public class CaptureActivity extends FrameLayout implements Callback {
     private String characterSet;
     private InactivityTimer inactivityTimer;
 
+    private Application.ActivityLifecycleCallbacks cb ;
+
     public CaptureActivity(Activity activity,  @NonNull ReactContext context) {
         super(context);
         this.activity = activity;
@@ -56,6 +62,79 @@ public class CaptureActivity extends FrameLayout implements Callback {
         CameraManager.init(activity.getApplication());
         hasSurface = false;
         inactivityTimer = new InactivityTimer(context.getCurrentActivity());
+        cb = new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityStarted(@NonNull Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(@NonNull Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(@NonNull Activity activity) {
+                Log.d(TAG, "onActivityPaused: ");
+                capture_onPause();
+            }
+
+            @Override
+            public void onActivityStopped(@NonNull Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(@NonNull Activity activity) {
+
+            }
+        };
+
+    }
+
+    // 生命周期-onResume
+    @Override
+    protected void onAttachedToWindow() {
+        init();
+        if (activity!=null){
+            activity.getApplication().registerActivityLifecycleCallbacks(cb);
+        }
+        super.onAttachedToWindow();
+    }
+
+    // 生命周期-onDestroy
+    @Override
+    protected void onDetachedFromWindow() {
+        inactivityTimer.shutdown();
+        if (handler != null) {
+            handler.quitSynchronously();
+            handler = null;
+        }
+        CameraManager.get().closeDriver();
+        if (activity!=null){
+            activity.getApplication().unregisterActivityLifecycleCallbacks(cb);
+        }
+        super.onDetachedFromWindow();
+
+    }
+
+    // 生命周期-暂停, 暴露给主activity
+    public void capture_onPause() {
+        if (handler != null) {
+            handler.quitSynchronously();
+            handler = null;
+        }
+        CameraManager.get().closeDriver();
     }
 
     protected void init() {
@@ -71,27 +150,18 @@ public class CaptureActivity extends FrameLayout implements Callback {
         characterSet = null;
     }
 
-    // 生命周期-onResume
-    @Override
-    protected void onAttachedToWindow() {
-        init();
-        super.onAttachedToWindow();
-    }
-
-    // 生命周期-onDestroy
-    @Override
-    protected void onDetachedFromWindow() {
-        inactivityTimer.shutdown();
-        super.onDetachedFromWindow();
-    }
-
-    // 生命周期-暂停, 暴露给主activity
-    public void capture_onPause() {
-        if (handler != null) {
-            handler.quitSynchronously();
-            handler = null;
+    private void initCamera(SurfaceHolder surfaceHolder) {
+        try {
+            CameraManager.get().openDriver(surfaceHolder);
+        } catch (IOException ioe) {
+            return;
+        } catch (RuntimeException e) {
+            return;
         }
-        CameraManager.get().closeDriver();
+        if (handler == null) {
+            handler = new CaptureActivityHandler(this, decodeFormats,
+                    characterSet);
+        }
     }
 
     /**
@@ -116,20 +186,6 @@ public class CaptureActivity extends FrameLayout implements Callback {
 //            Logger.d("saomiao",resultString);
             resultIntent.putExtras(bundle);
 //            this.setResult(RESULT_OK, resultIntent);
-        }
-    }
-
-    private void initCamera(SurfaceHolder surfaceHolder) {
-        try {
-            CameraManager.get().openDriver(surfaceHolder);
-        } catch (IOException ioe) {
-            return;
-        } catch (RuntimeException e) {
-            return;
-        }
-        if (handler == null) {
-            handler = new CaptureActivityHandler(this, decodeFormats,
-                    characterSet);
         }
     }
 
@@ -158,34 +214,19 @@ public class CaptureActivity extends FrameLayout implements Callback {
         return handler;
     }
 
-    public void setBarCodeTypes() {
-
+    @Override
+    public void requestLayout() {
+        // React handles this for us, so we don't need to call super.requestLayout();
+        super.requestLayout();
+        post(measureAndLayout);
     }
 
-//    /**
-//     *  闪光灯开关按钮
-//     */
-//    private View.OnClickListener flashListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            try {
-//                boolean isSuccess = CameraManager.get().setFlashLight(!isFlashOn);
-//                if(!isSuccess){
-//                    Toast.makeText(CaptureActivity.this, "暂时无法开启闪光灯", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                if (isFlashOn) {
-//                    // 关闭闪光灯
-//                    btnFlash.setImageResource(R.drawable.flash_off);
-//                    isFlashOn = false;
-//                } else {
-//                    // 开启闪光灯
-//                    btnFlash.setImageResource(R.drawable.flash_on);
-//                    isFlashOn = true;
-//                }
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-//        }
-//    };
+    private final Runnable measureAndLayout = new Runnable() {
+        @Override
+        public void run() {
+            measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
+            layout(getLeft(), getTop(), getRight(), getBottom());
+        }
+    };
 }
