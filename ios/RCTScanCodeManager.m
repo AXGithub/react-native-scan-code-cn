@@ -13,7 +13,7 @@
 
 @implementation RCTScanCodeManager
 
-RCT_EXPORT_MODULE(RCTScanCodeManager)
+RCT_EXPORT_MODULE(RNScanCode)
 
 - (UIView *)view{
     return [[ScanCode alloc] initWithBridge:self.bridge];
@@ -34,6 +34,10 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
     return YES;
 }
 
+- (NSArray<NSString *> *)supportedEvents{
+    return @[@"onBarCodeRead"];
+}
+
 - (NSDictionary *)constantsToExport
 {
     return @{
@@ -47,16 +51,10 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
                  @"code128": AVMetadataObjectTypeCode128Code,
                  @"pdf417": AVMetadataObjectTypePDF417Code,
                  @"qr": AVMetadataObjectTypeQRCode,
-                 @"aztec": AVMetadataObjectTypeAztecCode
-                 #ifdef AVMetadataObjectTypeInterleaved2of5Code
-                 ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-                 # endif
-                 #ifdef AVMetadataObjectTypeITF14Code
-                 ,@"itf14": AVMetadataObjectTypeITF14Code
-                 # endif
-                 #ifdef AVMetadataObjectTypeDataMatrixCode
-                 ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
-                 # endif
+                 @"aztec": AVMetadataObjectTypeAztecCode,
+                 @"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code,
+                 @"itf14": AVMetadataObjectTypeITF14Code,
+                 @"datamatrix": AVMetadataObjectTypeDataMatrixCode
                 }
             };
 }

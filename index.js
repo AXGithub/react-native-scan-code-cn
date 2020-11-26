@@ -1,31 +1,33 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types';
 import {
     View,
     requireNativeComponent,
     NativeModules,
     Platform,
     Dimensions,
-    StatusBar
+    StatusBar,
+    ViewPropTypes
 } from 'react-native'
 
-// const ScanCodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.RNScanCode
+const ScanCodeManager = NativeModules.RNScanCode
 
-const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'ScanCode' : 'RNScanCode', RNScanCode)
+const NativeBarCode = requireNativeComponent('RNScanCode', RNScanCode)
 
 export default class RNScanCode extends React.Component {
-    // static defaultProps = {
-    //     barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
-    // }
+    static defaultProps = {
+        barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
+    }
 
-    // static propTypes = {
-    //     ...View.propTypes,
-    //     onBarCodeRead: PropTypes.func.isRequired,
-    //     barCodeTypes: PropTypes.arrayOf(PropTypes.string)
-    // }
+    static propTypes = {
+        ...ViewPropTypes,
+        onBarCodeRead: PropTypes.func,
+        barCodeTypes: PropTypes.arrayOf(PropTypes.string)
+    }
     
     render() {
         const { children, style, ...otherProps } = this.props
-        const {width, height} =  Dimensions.get('window')
+        const { width, height } =  Dimensions.get('window')
         let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
         return (
             <View style={{flex: 1, backgroundColor: 'green'}}>

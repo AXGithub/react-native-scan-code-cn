@@ -37,6 +37,6 @@ export interface RNScanCodeProps extends ViewProps {
 }
 
 
-export default class RNScanCode extends Component<RNScanCodeProps> {
-    static constants: Constants;
+export class RNScanCode extends Component<RNScanCodeProps> {
+    static Constants: Constants;
 }
