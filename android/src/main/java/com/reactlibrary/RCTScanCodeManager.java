@@ -1,6 +1,7 @@
 package com.reactlibrary;
 
 import android.app.Activity;
+import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
 
@@ -28,9 +29,11 @@ public class RCTScanCodeManager extends SimpleViewManager<CaptureActivity> {
     @Override
     protected CaptureActivity createViewInstance(@NonNull ThemedReactContext context) {
         Activity activity = context.getCurrentActivity();
-        density = activity.getResources().getDisplayMetrics().density;
+//        density = activity.getResources().getDisplayMetrics().density;
         cap = new CaptureActivity(activity, context);
         return cap;
+//        final CaptureActivity rootView= (CaptureActivity) LayoutInflater.from(context).inflate(R.layout.activity_scanner,null);
+//        return  rootView;
     }
 
 //    @ReactProp(name = "barCodeTypes")

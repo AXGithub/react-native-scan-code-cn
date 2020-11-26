@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Layout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -60,7 +61,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
     protected void init() {
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.scanner_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
-//        this.activity.addContentView(surfaceView);
+//        addView(surfaceView);
         if (hasSurface) {
             initCamera(surfaceHolder);
         } else {
@@ -135,7 +136,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                int height) {
-
+        Log.d(TAG, "surfaceChanged: " + format + " : " + width + " : " + height);
     }
 
     @Override
