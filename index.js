@@ -1,11 +1,12 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 import {
     View,
     requireNativeComponent,
     NativeModules,
     Platform,
     Dimensions,
-    StatusBar
+    StatusBar,
+    DeviceEventEmitter
 } from 'react-native'
 
 // const ScanCodeManager = Platform.OS == 'ios' ? NativeModules.RCTScanCodeManager : NativeModules.RNScanCode
@@ -22,11 +23,26 @@ export default class RNScanCode extends React.Component {
     //     onBarCodeRead: PropTypes.func.isRequired,
     //     barCodeTypes: PropTypes.arrayOf(PropTypes.string)
     // }
+
+    componentDidMount() {
+        let that = this
+        DeviceEventEmitter.addListener('RNScanCodeLightBright', function(e) {
+            if (that.props.onLightBright) {
+                that.props.onLightBright(e)
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        DeviceEventEmitter.removeListener('RNScanCodeLightBright')
+    }
     
     render() {
-        const { children, style, ...otherProps } = this.props
+        const { children, style, onLightBright, ...otherProps } = this.props
+        console.log('onLightBright = ', onLightBright);
         const {width, height} =  Dimensions.get('window')
         let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
+
         return (
             <View style={{flex: 1, backgroundColor: 'green'}}>
                 <NativeBarCode
