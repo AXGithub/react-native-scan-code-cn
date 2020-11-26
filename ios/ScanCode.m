@@ -13,6 +13,7 @@
 - (id)initWithBridge:(RCTBridge *)bridge{
     if (self = [super init]) {
         self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
+        [self initQrCodeScanning];
     }
     return self;
 }

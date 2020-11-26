@@ -13,7 +13,7 @@
 
 @implementation RCTScanCodeManager
 
-RCT_EXPORT_MODULE(RNScanCode)
+RCT_EXPORT_MODULE(RNScanCodeManager)
 
 - (UIView *)view{
     return [[ScanCode alloc] initWithBridge:self.bridge];
