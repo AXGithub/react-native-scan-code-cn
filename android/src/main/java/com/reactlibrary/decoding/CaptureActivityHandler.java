@@ -77,14 +77,7 @@ public final class CaptureActivityHandler extends Handler {
     } else if (message.what == R.id.decode_succeeded) {
       Log.d(TAG, "---------------------------Got decode succeeded message");
       state = State.SUCCESS;
-      Bundle bundle = message.getData();
-
-      /***********************************************************************/
-      Bitmap barcode = bundle == null ? null :
-              (Bitmap) bundle.getParcelable(DecodeThread.BARCODE_BITMAP);//���ñ����߳�
-
-      activity.handleDecode((Result) message.obj, barcode);//���ؽ��
-      /***********************************************************************/
+      activity.handleDecode((Result) message.obj);//���ؽ��
     } else if (message.what == R.id.decode_failed) {// We're decoding as fast as possible, so when one decode fails, start another.
       state = State.PREVIEW;
       CameraManager.get().requestPreviewFrame(decodeThread.getHandler(), R.id.decode);

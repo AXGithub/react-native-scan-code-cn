@@ -24,7 +24,9 @@ import android.util.Log;
 
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.reactlibrary.CaptureActivity;
 import com.reactlibrary.RCTScanCodeModule;
+import com.reactlibrary.util.RNScanCodeHelper;
 
 
 final class PreviewCallback implements Camera.PreviewCallback {
@@ -44,11 +46,8 @@ final class PreviewCallback implements Camera.PreviewCallback {
   private long[] AMBIENT_BRIGHTNESS_DARK_LIST = new long[]{255, 255, 255, 255};
   // 环境亮度扫描间隔
   private int AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME = 150;
-  // 亮度低的阀值
-  private int AMBIENT_BRIGHTNESS_DARK = 60;
 
-  ReactContext reactContext = RCTScanCodeModule.getReactContextSingleton();
-
+  CaptureActivity Cap;
 
   PreviewCallback(CameraConfigurationManager configManager, boolean useOneShotPreviewCallback) {
     this.configManager = configManager;
@@ -105,20 +104,12 @@ final class PreviewCallback implements Camera.PreviewCallback {
       int lightSize = AMBIENT_BRIGHTNESS_DARK_LIST.length;
       AMBIENT_BRIGHTNESS_DARK_LIST[mAmbientBrightnessDarkIndex = mAmbientBrightnessDarkIndex % lightSize] = cameraLight;
       mAmbientBrightnessDarkIndex++;
-      boolean isDarkEnv = true;
-      // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
-      for (long ambientBrightness : AMBIENT_BRIGHTNESS_DARK_LIST) {
-        if (ambientBrightness > AMBIENT_BRIGHTNESS_DARK) {
-          isDarkEnv = false;
-          break;
-        }
-      }
 
       Log.i("光源 ------ ", String.valueOf(cameraLight));
-      reactContext
-              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-              .emit("RNScanCodeLightBright", String.valueOf(cameraLight));
-
+//      reactContext
+//              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+//              .emit("RNScanCodeLightBright", String.valueOf(cameraLight));
+      RNScanCodeHelper.emitLightBrightEvent(String.valueOf(cameraLight));
     }
   }
 

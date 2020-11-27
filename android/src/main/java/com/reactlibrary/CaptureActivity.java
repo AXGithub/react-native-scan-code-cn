@@ -1,67 +1,53 @@
 package com.reactlibrary;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Layout;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.Toast;
-
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactContext;
-import com.reactlibrary.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.reactlibrary.camera.CameraManager;
 import com.reactlibrary.decoding.CaptureActivityHandler;
 import com.reactlibrary.decoding.InactivityTimer;
-import com.reactlibrary.util.Constant;
+import com.reactlibrary.util.RNScanCodeHelper;
 
 import java.io.IOException;
 import java.util.Vector;
 
 
 /**
- * Initial the camera
- *
- * @author Ryan.Tang
+ * 扫码主页
  */
 public class CaptureActivity extends FrameLayout implements Callback {
-
-    private static final String TAG = CaptureActivity.class.getCanonicalName();
-
     private CaptureActivityHandler handler;
     private Activity activity;
     private boolean hasSurface;
     private Vector<BarcodeFormat> decodeFormats;
     private String characterSet;
     private InactivityTimer inactivityTimer;
+    private Application.ActivityLifecycleCallbacks cb;
+    private BarcodeFormat type;
 
-    private Application.ActivityLifecycleCallbacks cb ;
-
-    public CaptureActivity(Activity activity,  @NonNull ReactContext context) {
+    public CaptureActivity(Activity activity, @NonNull ReactContext context) {
         super(context);
         this.activity = activity;
-        LayoutInflater.from(context).inflate(R.layout.activity_scanner,this);
+        LayoutInflater.from(context).inflate(R.layout.activity_scanner, this);
         CameraManager.init(activity.getApplication());
         hasSurface = false;
         inactivityTimer = new InactivityTimer(context.getCurrentActivity());
+        type = BarcodeFormat.QR_CODE;
+        RNScanCodeHelper.setView(this);
         cb = new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
@@ -80,7 +66,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
 
             @Override
             public void onActivityPaused(@NonNull Activity activity) {
-                Log.d(TAG, "onActivityPaused: ");
+                // 扫码期间暂停,应当停止扫码进程和视频流
                 capture_onPause();
             }
 
@@ -106,7 +92,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
     @Override
     protected void onAttachedToWindow() {
         init();
-        if (activity!=null){
+        if (activity != null) {
             activity.getApplication().registerActivityLifecycleCallbacks(cb);
         }
         super.onAttachedToWindow();
@@ -121,14 +107,14 @@ public class CaptureActivity extends FrameLayout implements Callback {
             handler = null;
         }
         CameraManager.get().closeDriver();
-        if (activity!=null){
+        if (activity != null) {
             activity.getApplication().unregisterActivityLifecycleCallbacks(cb);
         }
         super.onDetachedFromWindow();
 
     }
 
-    // 生命周期-暂停, 暴露给主activity
+    // 生命周期-onPause
     public void capture_onPause() {
         if (handler != null) {
             handler.quitSynchronously();
@@ -137,10 +123,10 @@ public class CaptureActivity extends FrameLayout implements Callback {
         CameraManager.get().closeDriver();
     }
 
+    // 初始化视图
     protected void init() {
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.scanner_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
-//        addView(surfaceView);
         if (hasSurface) {
             initCamera(surfaceHolder);
         } else {
@@ -165,34 +151,21 @@ public class CaptureActivity extends FrameLayout implements Callback {
     }
 
     /**
-     * Handler scan result
-     *
+     * 扫描结果
      * @param result
-     * @param barcode
      */
-    public void handleDecode(Result result, Bitmap barcode) {
+    public void handleDecode(Result result) {
         inactivityTimer.onActivity();
         String resultString = result.getText();
-        //FIXME
-        if (TextUtils.isEmpty(resultString)) {
-            Toast.makeText(activity, "Scan failed!", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent resultIntent = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString(Constant.INTENT_EXTRA_KEY_QR_SCAN, resultString);
+        if (!TextUtils.isEmpty(resultString)) {
             System.out.println("sssssssssssssssss scan 0 = " + resultString);
-            // 不能使用Intent传递大于40kb的bitmap，可以使用一个单例对象存储这个bitmap
-//            bundle.putParcelable("bitmap", barcode);
-//            Logger.d("saomiao",resultString);
-            resultIntent.putExtras(bundle);
-//            this.setResult(RESULT_OK, resultIntent);
+            RNScanCodeHelper.emitScanCodeResultEvent(resultString, type);
         }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                int height) {
-        Log.d(TAG, "surfaceChanged: " + format + " : " + width + " : " + height);
     }
 
     @Override
@@ -216,7 +189,6 @@ public class CaptureActivity extends FrameLayout implements Callback {
 
     @Override
     public void requestLayout() {
-        // React handles this for us, so we don't need to call super.requestLayout();
         super.requestLayout();
         post(measureAndLayout);
     }

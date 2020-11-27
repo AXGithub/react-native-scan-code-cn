@@ -1,23 +1,39 @@
 package com.reactlibrary;
 
 import android.app.Activity;
-import android.view.LayoutInflater;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Callback;
+import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
-import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.UIManagerModule;
+import com.google.zxing.BarcodeFormat;
+import com.reactlibrary.events.CodeReadEvent;
+
+import java.util.Map;
 
 public class RCTScanCodeManager extends SimpleViewManager<CaptureActivity> {
 
-    public static final String REACT_CLASS = "RNScanCode";
+    public enum Events {
+        EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
+        EVENT_ON_LIGHT_BRIGHT("onLightBright");
 
-    private float density;
+        private final String mName;
+
+        Events(final String name) {
+            mName = name;
+        }
+
+        @Override
+        public String toString() {
+            return mName;
+        }
+    }
+
+    public static final String REACT_CLASS = "RNScanCode";
     CaptureActivity cap;
 
     @Override
@@ -29,12 +45,33 @@ public class RCTScanCodeManager extends SimpleViewManager<CaptureActivity> {
     @Override
     protected CaptureActivity createViewInstance(@NonNull ThemedReactContext context) {
         Activity activity = context.getCurrentActivity();
-//        density = activity.getResources().getDisplayMetrics().density;
         cap = new CaptureActivity(activity, context);
         return cap;
-//        final CaptureActivity rootView= (CaptureActivity) LayoutInflater.from(context).inflate(R.layout.activity_scanner,null);
-//        return  rootView;
     }
+
+    @Override
+    @Nullable
+    public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
+        MapBuilder.Builder<String, Object> builder = MapBuilder.builder();
+        for (Events event : Events.values()) {
+            builder.put(event.toString(), MapBuilder.of("registrationName", event.toString()));
+        }
+        return builder.build();
+    }
+
+//    @Override
+//    protected void addEventEmitters(@NonNull final ThemedReactContext reactContext, @NonNull final CaptureActivity view) {
+//        super.addEventEmitters(reactContext, view);
+//        view.setOnEvChangeListener(new CaptureActivity.OnEvChangeListener() {
+//            @Override
+//            public void getScanResult(String result, BarcodeFormat format) {
+//                Log.d(" ----- ", "getScanResult: " + result + " type: " + format);
+//                CodeReadEvent event = new CodeReadEvent(view.getId(), result, format);
+//                reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher()
+//                        .dispatchEvent(event);
+//            }
+//        });
+//    }
 
 //    @ReactProp(name = "barCodeTypes")
 //    public void setBarCodeTypes(CaptureActivity captureActivity) {
