@@ -9,7 +9,7 @@
     "android",
     "index.js",
     "ios",
-    "react-native-scan-code.podspec"
+    "react-native-scan-code-cn.podspec"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -32,7 +32,7 @@
   },
   "contributors": [
     {
-      "name": "Koren",
+      "name": "yuanaxun",
       "email": "yuanaxun@hotmail.com"
     }
   ],
