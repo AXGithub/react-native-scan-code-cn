@@ -1,5 +1,5 @@
 {
-  "name": "react-native-scan-code",
+  "name": "react-native-scan-code-cn",
   "title": "React Native Scan Code",
   "version": "1.0.0",
   "description": "TODO",
@@ -16,19 +16,27 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github_account/react-native-scan-code.git",
-    "baseUrl": "https://github.com/github_account/react-native-scan-code"
+    "url": "https://gitlab.x.yunio.com/app/react-native/plugin/react-native-scan-code.git"
   },
   "keywords": [
-    "react-native"
+    "react-native-scan-code-cn",
+    "react-native",
+    "scan-code",
+    "react-native-scancode",
+    "react-native-qrcode",
+    "react-native-barcode"
   ],
   "author": {
-    "name": "Your Name",
-    "email": "yourname@email.com"
+    "name": "san_mu",
+    "email": "jedshim@163.com"
   },
+  "contributors": [
+    {
+      "name": "Koren",
+      "email": "yuanaxun@hotmail.com"
+    }
+  ],
   "license": "MIT",
-  "licenseFilename": "LICENSE",
-  "readmeFilename": "README.md",
   "peerDependencies": {
     "react": "^16.8.1",
     "react-native": ">=0.60.0-rc.0 <1.0.x"
