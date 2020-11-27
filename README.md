@@ -1,17 +1,44 @@
-# react-native-scan-code
+# react-native-scan-code-cn
 
 ## Getting started
+### 1. Installation
+Using Npm
 
-`$ npm install react-native-scan-code --save`
+`$ npm install react-native-scan-code-cn --save`
 
-### Mostly automatic installation
+Using Yarn
 
-`$ react-native link react-native-scan-code`
+`yarn add react-native-scan-code-cn`
+
+Linking (for React Native <= 0.59 only)
+
+`react-native link react-native-linear-gradient`
+
+
+### 2. Configuration
+- android 
+1. run `npx jetify`
+2. In `android/app/src/main/AndroidManifest.xml` add:
+```
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+- ios 
+1. run `npx pod-install`
 
 ## Usage
-```javascript
-import ScanCode from 'react-native-scan-code';
+```javaScript
+import { RNScanCode } from 'react-native-scan-code-cn'
 
-// TODO: What to do with the module?
-ScanCode;
+<RNScanCode
+    onBarCodeRead={res => {
+        console.log('扫码结果 = ', res)
+    }}
+    onLightBright={light => {
+        console.log('当前的光源= ', light)
+    }}
+>
+    
+    {/* 其他UI */}
+</RNScanCode>
 ```
