@@ -16,7 +16,7 @@ type BarCodeType = Readonly<{
     interleaved2of5: any;
     itf14: any;
     datamatrix: any;
-  }>;
+}>;
 
 export interface Constants {
     BarCodeType: BarCodeType;
@@ -34,6 +34,7 @@ export interface RNScanCodeProps extends ViewProps {
     // 扫码回调方法
     onBarCodeRead?(event: BarCodeReadEvent): void;
     barCodeTypes?: Array<keyof BarCodeType>;
+    onLightBright?: (num: string) => void
 }
 
 

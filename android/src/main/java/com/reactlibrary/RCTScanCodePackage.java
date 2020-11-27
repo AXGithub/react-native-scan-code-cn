@@ -1,7 +1,6 @@
 package com.reactlibrary;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.facebook.react.ReactPackage;
@@ -12,7 +11,9 @@ import com.facebook.react.uimanager.ViewManager;
 public class RCTScanCodePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Collections.emptyList();
+        return Arrays.<NativeModule>asList(
+                new RCTScanCodeModule(reactContext)
+        );
     }
 
     @Override

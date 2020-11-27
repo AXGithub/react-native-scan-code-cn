@@ -22,6 +22,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.reactlibrary.RCTScanCodeModule;
+
 
 final class PreviewCallback implements Camera.PreviewCallback {
 
@@ -42,6 +46,8 @@ final class PreviewCallback implements Camera.PreviewCallback {
   private int AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME = 150;
   // 亮度低的阀值
   private int AMBIENT_BRIGHTNESS_DARK = 60;
+
+  ReactContext reactContext = RCTScanCodeModule.getReactContextSingleton();
 
 
   PreviewCallback(CameraConfigurationManager configManager, boolean useOneShotPreviewCallback) {
@@ -109,6 +115,10 @@ final class PreviewCallback implements Camera.PreviewCallback {
       }
 
       Log.i("光源 ------ ", String.valueOf(cameraLight));
+      reactContext
+              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("RNScanCodeLightBright", String.valueOf(cameraLight));
+
     }
   }
 
