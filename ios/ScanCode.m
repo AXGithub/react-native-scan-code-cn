@@ -2,9 +2,6 @@
 
 @interface ScanCode ()
 
-/** 扫码回调 */
-@property(nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
-
 @end
 
 @implementation ScanCode
@@ -78,16 +75,23 @@
                 [self.session addInput:self.input];
             }
             // 拍完照片以后，需要一个AVCaptureMetadataOutput对象将获取的'图像'输出，以便进行对其解析
-            AVCaptureMetadataOutput * output = [[AVCaptureMetadataOutput alloc] init];
+            AVCaptureMetadataOutput *output = [[AVCaptureMetadataOutput alloc] init];
             self.metadataOutput = output;
+            // 创建视频输出流
+            AVCaptureVideoDataOutput *videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+            self.videodataOutput = videoOutput;
             if ([self.session canAddOutput:self.metadataOutput]) {
                 [self.metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
                 [self.session addOutput:self.metadataOutput];
                 // 设置输出类型 有二维码 条形码等
-//                [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+                // [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
                 [self.metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
                 // 设置全屏扫描
                 output.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
+            }
+            if ([self.session canAddOutput:self.videodataOutput]) {
+                [self.videodataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+                [self.session addOutput:self.videodataOutput];
             }
         }
         [self.session startRunning];
@@ -110,6 +114,7 @@
             [self.session removeOutput:output];
         }
         self.metadataOutput = nil;
+        self.videodataOutput = nil;
     });
 #endif
 }
@@ -118,8 +123,8 @@
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection{
     
     for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
-        for (id barcodeType in self.barCodeTypes) {
-            if ([metadata.type isEqualToString:barcodeType]) {
+//        for (id barcodeType in self.barCodeTypes) {
+//            if ([metadata.type isEqualToString:barcodeType]) {
                 if (self.onBarCodeRead) {
                     // 这就是扫描的结果
                     self.onBarCodeRead(@{
@@ -128,8 +133,24 @@
                                 @"code": metadata.stringValue
                         }});
                 }
-            }
-        }
+//            }
+//        }
     }
+}
+
+#pragma mark- AVCaptureVideoDataOutputSampleBufferDelegate的方法
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    
+    CFDictionaryRef metadataDict = CMCopyDictionaryOfAttachments(NULL,sampleBuffer, kCMAttachmentMode_ShouldPropagate);
+    NSDictionary *metadata = [[NSMutableDictionary alloc] initWithDictionary:(__bridge NSDictionary*)metadataDict];
+    CFRelease(metadataDict);
+    NSDictionary *exifMetadata = [[metadata objectForKey:(NSString *)kCGImagePropertyExifDictionary] mutableCopy];
+    float brightnessValue = [[exifMetadata objectForKey:(NSString *)kCGImagePropertyExifBrightnessValue] floatValue];
+    
+    NSLog(@"环境光感 ： %f",brightnessValue);
+    if (self.onLightBright) {
+        self.onLightBright(@{@"light": @(brightnessValue)});
+    }
+    
 }
 @end

@@ -1,13 +1,11 @@
 import React from 'react'
-import PropTypes from 'prop-types';
 import {
     View,
     requireNativeComponent,
     NativeModules,
     Platform,
     Dimensions,
-    StatusBar,
-    ViewPropTypes
+    StatusBar
 } from 'react-native'
 
 const ScanCodeManager = NativeModules.RNScanCode
@@ -15,7 +13,7 @@ type EventCallbackArgumentsType = {
     nativeEvent: Object,
 };
 
-const NativeBarCode = requireNativeComponent('RNScanCode')
+const NativeBarCode = requireNativeComponent('RNScanCode', RNScanCode)
 
 const EventThrottleMs = 500;
 export class RNScanCode extends React.Component {
@@ -24,21 +22,11 @@ export class RNScanCode extends React.Component {
         this._lastEvents = {};
         this._lastEventsTimes = {};
     }
-    static defaultProps = {
-        // barCodeTypes: Object.values(ScanCodeManager.barCodeTypes)
-    }
-
-    // static propTypes = {
-    //     ...View.propTypes,
-    //     onBarCodeRead: PropTypes.func.isRequired,
-    //     barCodeTypes: PropTypes.arrayOf(PropTypes.string)
-    // }
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
 
     _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
-        // console.log('nativeEvent = ', nativeEvent);
         const { type } = nativeEvent;
         if (
             this._lastEvents[type] &&
@@ -50,13 +38,20 @@ export class RNScanCode extends React.Component {
         }
         if (callback) {
             callback(nativeEvent);
+            console.log('nativeEvent====',nativeEvent)
             this._lastEventsTimes[type] = new Date();
             this._lastEvents[type] = JSON.stringify(nativeEvent);
         }
     };
 
     render() {
-        const { children, style, onLightBright, onBarCodeRead, ...otherProps } = this.props
+        const { 
+            children, 
+            style, 
+            onLightBright, 
+            onBarCodeRead, 
+            ...otherProps 
+        } = this.props
         const { width, height } = Dimensions.get('window')
         let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
 
