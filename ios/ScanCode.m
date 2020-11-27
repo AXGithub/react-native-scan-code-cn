@@ -24,6 +24,15 @@
     [self stopSession];
 }
 
+- (void)layoutSubviews{
+    [super layoutSubviews];
+    self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    self.previewLayer.needsDisplayOnBoundsChange = YES;
+    self.previewLayer.frame = self.bounds;
+    [self setBackgroundColor:[UIColor blackColor]];
+    [self.layer insertSublayer:self.previewLayer atIndex:0];
+}
+
 #pragma mark - 初始化扫码
 /**
  *  扫描二维码 大概的流程应该是：
@@ -40,37 +49,34 @@
     self.session = [[AVCaptureSession alloc] init];
     // 采集高质量
     [self.session setSessionPreset:AVCaptureSessionPresetHigh];
+    
+    // 设置相机取景器大小，要不然会黑屏
+    self.previewLayer =
+    [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+    
     // 获取摄像头设备
     self.device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     if (self.device == nil) {
         return;
     }
-    NSError *error = nil;
-    //创建输入流
-    self.input = [AVCaptureDeviceInput deviceInputWithDevice:self.device error:&error];
-    if ([self.session canAddInput:self.input]) {
-        [self.session addInput:self.input];
-    }
-    // 设置相机取景器大小，要不然会黑屏
-    self.previewLayer =
-    [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-    self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    self.previewLayer.needsDisplayOnBoundsChange = YES;
-    self.previewLayer.frame = self.bounds;
-    [self setBackgroundColor:[UIColor blackColor]];
-    [self.layer insertSublayer:self.previewLayer atIndex:0];
+    
     // 开始扫码
     [self startSession];
     
 #endif
     return;
 }
-
 #pragma mark - 开启扫码
 - (void)startSession{
 #if !(TARGET_IPHONE_SIMULATOR)
     dispatch_async(self.sessionQueue, ^{
         if (self.metadataOutput == nil) {
+            NSError *error = nil;
+            //创建输入流
+            self.input = [[AVCaptureDeviceInput alloc] initWithDevice:self.device error:&error];
+            if ([self.session canAddInput:self.input]) {
+                [self.session addInput:self.input];
+            }
             // 拍完照片以后，需要一个AVCaptureMetadataOutput对象将获取的'图像'输出，以便进行对其解析
             AVCaptureMetadataOutput * output = [[AVCaptureMetadataOutput alloc] init];
             self.metadataOutput = output;
