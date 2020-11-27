@@ -27,6 +27,7 @@ export class RNScanCode extends React.Component {
     _lastEventsTimes: { [string]: Date };
 
     _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
+        // console.log('nativeEvent====',nativeEvent)
         const { type } = nativeEvent;
         if (
             this._lastEvents[type] &&
@@ -38,7 +39,6 @@ export class RNScanCode extends React.Component {
         }
         if (callback) {
             callback(nativeEvent);
-            console.log('nativeEvent====',nativeEvent)
             this._lastEventsTimes[type] = new Date();
             this._lastEvents[type] = JSON.stringify(nativeEvent);
         }
