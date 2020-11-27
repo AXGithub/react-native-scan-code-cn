@@ -12,7 +12,7 @@ Using Yarn
 
 Linking (for React Native <= 0.59 only)
 
-`react-native link react-native-linear-gradient`
+`react-native link react-native-scan-code-cn`
 
 
 ### 2. Configuration
@@ -27,6 +27,9 @@ Linking (for React Native <= 0.59 only)
 1. run `npx pod-install`
 
 ## Usage
+
+Make sure permissions are turned on before using
+
 ```javaScript
 import { RNScanCode } from 'react-native-scan-code-cn'
 

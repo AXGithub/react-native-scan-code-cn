@@ -1,8 +1,8 @@
 {
   "name": "react-native-scan-code-cn",
   "title": "React Native Scan Code",
-  "version": "1.0.1",
-  "description": "TODO",
+  "version": "1.0.2",
+  "description": "扫码插件,支持后置摄像头光源强度识别",
   "main": "index.js",
   "files": [
     "README.md",
