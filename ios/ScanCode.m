@@ -132,7 +132,7 @@
                                 @"type": metadata.type,
                                 @"code": metadata.stringValue
                         }});
-                    [self stopSession];
+                    [self.session stopRunning];
                 }
 //            }
 //        }
