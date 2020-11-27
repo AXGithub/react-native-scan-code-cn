@@ -25,6 +25,8 @@ RCT_EXPORT_MODULE(RNScanCodeManager)
 
 /** 扫码回调 */
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
+/** 光源感应回调 */
+RCT_EXPORT_VIEW_PROPERTY(onLightBright, RCTDirectEventBlock);
 /** 二维码类型 */
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
     [view setBarCodeTypes:[RCTConvert NSArray:json]];
@@ -32,10 +34,6 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
 
 + (BOOL)requiresMainQueueSetup{
     return YES;
-}
-
-- (NSArray<NSString *> *)supportedEvents{
-    return @[@"onBarCodeRead"];
 }
 
 - (NSDictionary *)constantsToExport

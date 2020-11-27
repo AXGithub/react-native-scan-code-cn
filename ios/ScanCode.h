@@ -4,7 +4,7 @@
 #import <React/RCTComponent.h>
 #import <UIKit/UIKit.h>
 
-@interface ScanCode : UIView <AVCaptureMetadataOutputObjectsDelegate>
+@interface ScanCode : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
 /** 线程队列 */
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
@@ -16,10 +16,16 @@
 @property(nonatomic, strong) AVCaptureInput *input;
 /** 获取的'图像'输出，进行对其解析 */
 @property (nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
+/** 获取的'视频'输出，进行对其解析 */
+@property (nonatomic, strong) AVCaptureVideoDataOutput *videodataOutput;
 /** 对视频数据进行实时预览 */
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 /** 二维码类型数组 */
 @property(nonatomic, strong) NSArray *barCodeTypes;
+/** 扫码回调 */
+@property(nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
+/** 光源感应回调 */
+@property(nonatomic, copy) RCTDirectEventBlock onLightBright;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 
