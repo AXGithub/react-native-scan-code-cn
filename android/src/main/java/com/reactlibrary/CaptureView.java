@@ -38,14 +38,13 @@ public class CaptureView extends FrameLayout implements Callback {
     private CaptureActivityHandler handler;
     private Activity activity;
     private boolean hasSurface;
+    // 支持的扫码类型,不赋值支持所有类型
     private Vector<BarcodeFormat> decodeFormats;
     private String characterSet;
     // 识别码线程
     private InactivityTimer inactivityTimer;
     // 暂停事件
     private Application.ActivityLifecycleCallbacks cb;
-    // 扫码类型
-    private BarcodeFormat type;
     // 两指距离
     private float mOldDist = 1f;
 
@@ -56,8 +55,8 @@ public class CaptureView extends FrameLayout implements Callback {
         CameraManager.init(activity.getApplication());
         hasSurface = false;
         inactivityTimer = new InactivityTimer(context.getCurrentActivity());
-        type = BarcodeFormat.QR_CODE;
         RNScanCodeHelper.setView(this);
+        // 进程状态切换监听器
         cb = new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
@@ -98,7 +97,9 @@ public class CaptureView extends FrameLayout implements Callback {
 
     }
 
-    // 生命周期-onResume
+    /**
+     * 生命周期-onResume
+     */
     @Override
     protected void onAttachedToWindow() {
         init();
@@ -108,7 +109,9 @@ public class CaptureView extends FrameLayout implements Callback {
         super.onAttachedToWindow();
     }
 
-    // 生命周期-onDestroy
+    /**
+     * 生命周期-onDestroy
+     */
     @Override
     protected void onDetachedFromWindow() {
         inactivityTimer.shutdown();
@@ -124,7 +127,9 @@ public class CaptureView extends FrameLayout implements Callback {
 
     }
 
-    // 生命周期-onPause
+    /**
+     * 生命周期-onPause
+     */
     public void capture_onPause() {
         if (handler != null) {
             handler.quitSynchronously();
@@ -133,7 +138,9 @@ public class CaptureView extends FrameLayout implements Callback {
         CameraManager.get().closeDriver();
     }
 
-    // 初始化视图
+    /**
+     * 初始化视图
+     */
     protected void init() {
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.scanner_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -142,10 +149,15 @@ public class CaptureView extends FrameLayout implements Callback {
         } else {
             surfaceHolder.addCallback(this);
         }
-        decodeFormats = null;
+        decodeFormats = new Vector<BarcodeFormat>();
+        decodeFormats.add(BarcodeFormat.QR_CODE);
         characterSet = null;
     }
 
+    /**
+     * 初始化Camera
+     * @param surfaceHolder
+     */
     private void initCamera(SurfaceHolder surfaceHolder) {
         try {
             CameraManager.get().openDriver(surfaceHolder);
@@ -168,8 +180,7 @@ public class CaptureView extends FrameLayout implements Callback {
         inactivityTimer.onActivity();
         String resultString = result.getText();
         if (!TextUtils.isEmpty(resultString)) {
-//            System.out.println("sssssssssssssssss scan 0 = " + resultString);
-            RNScanCodeHelper.emitScanCodeResultEvent(resultString, type);
+            RNScanCodeHelper.emitScanCodeResultEvent(resultString, decodeFormats.get(0));
         }
     }
 
@@ -197,6 +208,9 @@ public class CaptureView extends FrameLayout implements Callback {
         return handler;
     }
 
+    /**
+     * 自适应大小
+     */
     @Override
     public void requestLayout() {
         super.requestLayout();
@@ -212,10 +226,19 @@ public class CaptureView extends FrameLayout implements Callback {
         }
     };
 
+    /**
+     * 设置闪光灯
+     * @param isFlash
+     */
     public static void setFlashlight(boolean isFlash) {
         CameraManager.get().setFlashLight(isFlash);
     }
 
+    /**
+     * 重写手势
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getPointerCount() == 2) {
@@ -243,6 +266,11 @@ public class CaptureView extends FrameLayout implements Callback {
         return true;
     }
 
+    /**
+     * 缩放
+     * @param isZoomIn
+     * @param camera
+     */
     private static void handleZoom(boolean isZoomIn, Camera camera) {
         Camera.Parameters params = camera.getParameters();
         if (params.isZoomSupported()) {
