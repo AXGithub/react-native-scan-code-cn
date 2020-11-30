@@ -15,6 +15,8 @@ type EventCallbackArgumentsType = {
 
 const NativeBarCode = requireNativeComponent('RNScanCode', RNScanCode)
 
+export const ScanCodeModule = NativeModules.ScanCodeModule
+
 const EventThrottleMs = 500;
 export class RNScanCode extends React.Component {
     constructor(props) {

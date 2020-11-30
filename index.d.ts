@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { ViewProps } from 'react-native';
+import { ViewProps, NativeModules } from 'react-native';
 
 /** 支持的扫描码 */
 type BarCodeType = Readonly<{
@@ -40,4 +40,8 @@ export interface RNScanCodeProps extends ViewProps {
 
 export class RNScanCode extends Component<RNScanCodeProps> {
     static Constants: Constants;
+}
+
+export class ScanCodeModule {
+    static setFlashlight: (flash: boolean) => void
 }

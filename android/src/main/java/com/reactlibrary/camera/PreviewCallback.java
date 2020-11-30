@@ -22,10 +22,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.reactlibrary.CaptureActivity;
-import com.reactlibrary.RCTScanCodeModule;
+import com.reactlibrary.CaptureView;
 import com.reactlibrary.util.RNScanCodeHelper;
 
 
@@ -45,9 +42,9 @@ final class PreviewCallback implements Camera.PreviewCallback {
   // 环境亮度历史记录的数组，255 是代表亮度最大值
   private long[] AMBIENT_BRIGHTNESS_DARK_LIST = new long[]{255, 255, 255, 255};
   // 环境亮度扫描间隔
-  private int AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME = 150;
+  private int AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME = 1000;
 
-  CaptureActivity Cap;
+  CaptureView Cap;
 
   PreviewCallback(CameraConfigurationManager configManager, boolean useOneShotPreviewCallback) {
     this.configManager = configManager;
@@ -105,10 +102,7 @@ final class PreviewCallback implements Camera.PreviewCallback {
       AMBIENT_BRIGHTNESS_DARK_LIST[mAmbientBrightnessDarkIndex = mAmbientBrightnessDarkIndex % lightSize] = cameraLight;
       mAmbientBrightnessDarkIndex++;
 
-      Log.i("光源 ------ ", String.valueOf(cameraLight));
-//      reactContext
-//              .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-//              .emit("RNScanCodeLightBright", String.valueOf(cameraLight));
+//      Log.i("光源 ------ ", String.valueOf(cameraLight));
       RNScanCodeHelper.emitLightBrightEvent(String.valueOf(cameraLight));
     }
   }

@@ -5,7 +5,9 @@ import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -29,7 +31,7 @@ import java.util.Vector;
 /**
  * 扫码主页
  */
-public class CaptureActivity extends FrameLayout implements Callback {
+public class CaptureView extends FrameLayout implements Callback {
     private CaptureActivityHandler handler;
     private Activity activity;
     private boolean hasSurface;
@@ -39,7 +41,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
     private Application.ActivityLifecycleCallbacks cb;
     private BarcodeFormat type;
 
-    public CaptureActivity(Activity activity, @NonNull ReactContext context) {
+    public CaptureView(Activity activity, @NonNull ReactContext context) {
         super(context);
         this.activity = activity;
         LayoutInflater.from(context).inflate(R.layout.activity_scanner, this);
@@ -158,7 +160,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
         inactivityTimer.onActivity();
         String resultString = result.getText();
         if (!TextUtils.isEmpty(resultString)) {
-            System.out.println("sssssssssssssssss scan 0 = " + resultString);
+//            System.out.println("sssssssssssssssss scan 0 = " + resultString);
             RNScanCodeHelper.emitScanCodeResultEvent(resultString, type);
         }
     }
@@ -170,6 +172,7 @@ public class CaptureActivity extends FrameLayout implements Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.d("----- ", "surfaceCreated: ");
         if (!hasSurface) {
             hasSurface = true;
             initCamera(holder);
@@ -201,4 +204,30 @@ public class CaptureActivity extends FrameLayout implements Callback {
             layout(getLeft(), getTop(), getRight(), getBottom());
         }
     };
+
+    public static void setFlashlight(boolean isFlash) {
+        CameraManager.get().setFlashLight(isFlash);
+    }
+
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        return super.onTouchEvent(event);
+//        if (event.getPointerCount() == 2) {
+//            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+//                case MotionEvent.ACTION_POINTER_DOWN:
+//                    Log.d("---- ", "onTouchEvent: ACTION_POINTER_DOWN");
+//                    break;
+//                case MotionEvent.ACTION_MOVE:
+//                    Log.d("----", "onTouchEvent: ACTION_MOVE");
+////                    float newDist = BGAQRCodeUtil.calculateFingerSpacing(event);
+////                    if (newDist > mOldDist) {
+////                        handleZoom(true, mCamera);
+////                    } else if (newDist < mOldDist) {
+////                        handleZoom(false, mCamera);
+////                    }
+//                    break;
+//            }
+//        }
+//        return true;
+//    }
 }

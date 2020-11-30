@@ -16,11 +16,8 @@
 
 package com.reactlibrary.decoding;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -28,7 +25,7 @@ import android.util.Log;
 import com.reactlibrary.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.reactlibrary.CaptureActivity;
+import com.reactlibrary.CaptureView;
 import com.reactlibrary.camera.CameraManager;
 
 import java.util.Vector;
@@ -41,7 +38,7 @@ public final class CaptureActivityHandler extends Handler {
 
   private static final String TAG = CaptureActivityHandler.class.getSimpleName();
 
-  private final CaptureActivity activity;
+  private final CaptureView activity;
   private final DecodeThread decodeThread;
   private State state;
 
@@ -51,7 +48,7 @@ public final class CaptureActivityHandler extends Handler {
     DONE
   }
 
-  public CaptureActivityHandler(CaptureActivity activity, Vector<BarcodeFormat> decodeFormats,
+  public CaptureActivityHandler(CaptureView activity, Vector<BarcodeFormat> decodeFormats,
                                 String characterSet) {
     this.activity = activity;
     decodeThread = new DecodeThread(activity, decodeFormats, characterSet);
