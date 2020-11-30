@@ -141,6 +141,10 @@ public final class CameraManager {
         }
     }
 
+    public Camera getCamera() {
+        return this.camera;
+    }
+
     /**
      * Closes the camera driver if still in use.
      */

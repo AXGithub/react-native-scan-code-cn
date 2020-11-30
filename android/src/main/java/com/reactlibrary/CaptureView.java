@@ -2,6 +2,7 @@ package com.reactlibrary;
 
 import android.app.Activity;
 import android.app.Application;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -23,6 +24,7 @@ import com.reactlibrary.camera.CameraManager;
 import com.reactlibrary.decoding.CaptureActivityHandler;
 import com.reactlibrary.decoding.InactivityTimer;
 import com.reactlibrary.util.RNScanCodeHelper;
+import com.reactlibrary.util.TouchEventUtil;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -32,14 +34,20 @@ import java.util.Vector;
  * 扫码主页
  */
 public class CaptureView extends FrameLayout implements Callback {
+    private static final String TAG = "CaptureView";
     private CaptureActivityHandler handler;
     private Activity activity;
     private boolean hasSurface;
     private Vector<BarcodeFormat> decodeFormats;
     private String characterSet;
+    // 识别码线程
     private InactivityTimer inactivityTimer;
+    // 暂停事件
     private Application.ActivityLifecycleCallbacks cb;
+    // 扫码类型
     private BarcodeFormat type;
+    // 两指距离
+    private float mOldDist = 1f;
 
     public CaptureView(Activity activity, @NonNull ReactContext context) {
         super(context);
@@ -172,7 +180,6 @@ public class CaptureView extends FrameLayout implements Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.d("----- ", "surfaceCreated: ");
         if (!hasSurface) {
             hasSurface = true;
             initCamera(holder);
@@ -209,25 +216,47 @@ public class CaptureView extends FrameLayout implements Callback {
         CameraManager.get().setFlashLight(isFlash);
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        return super.onTouchEvent(event);
-//        if (event.getPointerCount() == 2) {
-//            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-//                case MotionEvent.ACTION_POINTER_DOWN:
-//                    Log.d("---- ", "onTouchEvent: ACTION_POINTER_DOWN");
-//                    break;
-//                case MotionEvent.ACTION_MOVE:
-//                    Log.d("----", "onTouchEvent: ACTION_MOVE");
-////                    float newDist = BGAQRCodeUtil.calculateFingerSpacing(event);
-////                    if (newDist > mOldDist) {
-////                        handleZoom(true, mCamera);
-////                    } else if (newDist < mOldDist) {
-////                        handleZoom(false, mCamera);
-////                    }
-//                    break;
-//            }
-//        }
-//        return true;
-//    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getPointerCount() == 2) {
+            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    mOldDist = TouchEventUtil.calculateFingerSpacing(event);
+//                    Log.d(TAG, "onTouchEvent: ACTION_POINTER_DOWN");
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float newDist = TouchEventUtil.calculateFingerSpacing(event);
+//                    Log.d(TAG, "onTouchEvent: newDist = " + newDist + " : mOldDist = " + mOldDist);
+                    if (Math.abs(newDist - mOldDist) > 3) {
+                        if (newDist > mOldDist) {
+//                        Log.d(TAG, "放大");
+                            handleZoom(true, CameraManager.get().getCamera());
+                        } else{
+//                        Log.d(TAG, "缩小");
+                            handleZoom(false, CameraManager.get().getCamera());
+                        }
+                        mOldDist = newDist;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
+
+    private static void handleZoom(boolean isZoomIn, Camera camera) {
+        Camera.Parameters params = camera.getParameters();
+        if (params.isZoomSupported()) {
+            int zoom = params.getZoom();
+//            Log.d(TAG, "handleZoom: zoom = " + zoom + " : " + params.getMaxZoom());
+            if (isZoomIn && zoom < params.getMaxZoom()) {
+//                Log.d(TAG, "handleZoom: 放大" + zoom);
+                zoom++;
+            } else if (!isZoomIn && zoom >= 2) {
+//                Log.d(TAG, "handleZoom: 缩小" + zoom);
+                zoom-=2;
+            }
+            params.setZoom(zoom);
+            camera.setParameters(params);
+        }
+    }
 }
