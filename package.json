@@ -2,7 +2,7 @@
   "name": "react-native-scan-code-cn",
   "title": "React Native Scan Code cn",
   "version": "1.0.2",
-  "description": "扫码插件,支持后置摄像头光源强度识别",
+  "description": "扫码插件,支持后置摄像头光源感应",
   "main": "index.js",
   "files": [
     "README.md",
@@ -19,12 +19,9 @@
     "url": "https://gitlab.x.yunio.com/app/react-native/plugin/react-native-scan-code.git"
   },
   "keywords": [
-    "react-native-scan-code-cn",
     "react-native",
     "scan-code",
-    "react-native-scancode",
-    "react-native-qrcode",
-    "react-native-barcode"
+    "react-native-qrcode"
   ],
   "author": {
     "name": "san_mu",

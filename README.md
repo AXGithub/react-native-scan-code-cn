@@ -10,7 +10,7 @@ Using Yarn
 
 `yarn add react-native-scan-code-cn`
 
-Linking (for React Native <= 0.59 only)
+Linking (for React Native < 0.60 only)
 
 `react-native link react-native-scan-code-cn`
 
