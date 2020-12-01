@@ -35,8 +35,6 @@ export interface RNScanCodeProps extends ViewProps {
     onBarCodeRead?(event: BarCodeReadEvent): void;
     // 光源回调
     onLightBright?: (num: string) => void;
-    // 设置手电筒
-    setFlashlight?(isOpen: boolean): void
     // 扫码类型
     codeTypes?: Array<keyof CodeType>;
 }
@@ -44,8 +42,6 @@ export interface RNScanCodeProps extends ViewProps {
 
 export class RNScanCode extends Component<RNScanCodeProps> {
     static Constants: Constants;
-}
-
-export class ScanCodeModule {
+    // 设置手电筒
     static setFlashlight: (flash: boolean) => void
 }

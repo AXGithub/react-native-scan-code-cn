@@ -64,11 +64,11 @@ export class RNScanCode extends React.Component {
     }
 
     /** 设置手电筒 */
-    setFlashlight(isOpen: Boolean) {
+    setFlashlight(flash) {
         if (Platform.OS === 'ios') {
-            ScanCodeManager.setFlashlight(this._scancodeHandle, isOpen)
+            ScanCodeManager.setFlashlight(this._scancodeHandle, flash)
         } else {
-            ScanCodeManager.setFlashlight(isOpen)
+            ScanCodeManager.setFlashlight(flash)
         }
     }
 
