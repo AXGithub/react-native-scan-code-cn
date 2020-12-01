@@ -5,7 +5,8 @@ import {
     NativeModules,
     Platform,
     Dimensions,
-    StatusBar
+    StatusBar,
+    findNodeHandle
 } from 'react-native'
 
 const ScanCodeManager = NativeModules.RNScanCode
@@ -27,6 +28,8 @@ export class RNScanCode extends React.Component {
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
+    // 存储组件实例的tag值
+    _scancodeHandle: ?number;
 
     _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
         // console.log('nativeEvent====',nativeEvent)
@@ -46,6 +49,24 @@ export class RNScanCode extends React.Component {
         }
     };
 
+    /** 查找对应组件实例的tag值 */
+    _setReference = (ref: ?Object) => {
+        if (ref) {
+          this._scancodeHandle = findNodeHandle(ref);
+        } else {
+          this._scancodeHandle = null;
+        }
+    }
+
+    /** 设置手电筒 */
+    setFlashlight(isOpen: Boolean) {
+        if (Platform.OS === 'ios') {
+            ScanCodeManager.setFlashlight(this._scancodeHandle, isOpen)
+        } else {
+            ScanCodeManager.setFlashlight(isOpen)
+        }
+    }
+
     render() {
         const { 
             children, 
@@ -64,6 +85,7 @@ export class RNScanCode extends React.Component {
                     {...otherProps}
                     onBarCodeRead={this._onObjectDetected(onBarCodeRead)}
                     onLightBright={this._onObjectDetected(onLightBright)}
+                    ref={this._setReference}
                 />
                 <View style={[{ position: 'absolute', top: 0, left: 0 }, style]}>
                     {children}

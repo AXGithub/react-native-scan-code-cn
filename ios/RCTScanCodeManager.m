@@ -15,29 +15,23 @@
 
 RCT_EXPORT_MODULE(RNScanCodeManager)
 
+/** 视图初始化加载 */
 - (UIView *)view{
     return [[ScanCode alloc] initWithBridge:self.bridge];
 }
 
+/** 线程队列创建 */
 - (dispatch_queue_t)methodQueue{
     return self.bridge.uiManager.methodQueue;
 }
 
-/** 扫码回调 */
-RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
-/** 光源感应回调 */
-RCT_EXPORT_VIEW_PROPERTY(onLightBright, RCTDirectEventBlock);
-/** 二维码类型 */
-RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
-    [view setBarCodeTypes:[RCTConvert NSArray:json]];
-}
-
+/** 指定在主线程初始化 */
 + (BOOL)requiresMainQueueSetup{
     return YES;
 }
 
-- (NSDictionary *)constantsToExport
-{
+/** 导出常量 */
+- (NSDictionary *)constantsToExport{
     return @{
             @"barCodeTypes": @{
                  @"upce": AVMetadataObjectTypeUPCECode,
@@ -55,6 +49,26 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
                  @"datamatrix": AVMetadataObjectTypeDataMatrixCode
                 }
             };
+}
+
+/** 扫码回调 */
+RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
+/** 光源感应回调 */
+RCT_EXPORT_VIEW_PROPERTY(onLightBright, RCTDirectEventBlock);
+/** 二维码类型 */
+RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
+    [view setBarCodeTypes:[RCTConvert NSArray:json]];
+}
+/** 打开、关闭手电筒 */
+RCT_EXPORT_METHOD(setFlashlight:(nonnull NSNumber *)reactTag isOpen:(BOOL)isOpen){
+    [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *,ScanCode *> *viewRegistry) {
+        ScanCode *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[ScanCode class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+        } else {
+            [view setFlashlight:isOpen];
+        }
+    }];
 }
 
 @end

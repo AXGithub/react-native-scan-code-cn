@@ -27,6 +27,9 @@
 /** 光源感应回调 */
 @property(nonatomic, copy) RCTDirectEventBlock onLightBright;
 
+/** 初始化 */
 - (id)initWithBridge:(RCTBridge *)bridge;
+/** 打开、关闭手电筒 */
+- (void)setFlashlight:(BOOL)isOpen;
 
 @end

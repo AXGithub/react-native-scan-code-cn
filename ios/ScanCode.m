@@ -63,6 +63,27 @@
 #endif
     return;
 }
+
+/** 打开、关闭手电筒 */
+- (void)setFlashlight:(BOOL)isOpen{
+    if (isOpen) {
+        NSError *error = nil;
+        if ([self.device hasTorch]) {
+            BOOL locked = [self.device lockForConfiguration:&error];
+            if (locked) {
+                self.device.torchMode = AVCaptureTorchModeOn;
+                [self.device unlockForConfiguration];
+            }
+        }
+    } else {
+        if ([self.device hasTorch]) {
+            [self.device lockForConfiguration:nil];
+            [self.device setTorchMode:AVCaptureTorchModeOff];
+            [self.device unlockForConfiguration];
+        }
+    }
+}
+
 #pragma mark - 开启扫码
 - (void)startSession{
 #if !(TARGET_IPHONE_SIMULATOR)
@@ -140,6 +161,7 @@
 }
 
 #pragma mark- AVCaptureVideoDataOutputSampleBufferDelegate的方法
+/** 光源感应 */
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     
     CFDictionaryRef metadataDict = CMCopyDictionaryOfAttachments(NULL,sampleBuffer, kCMAttachmentMode_ShouldPropagate);
@@ -154,4 +176,5 @@
     }
     
 }
+
 @end
