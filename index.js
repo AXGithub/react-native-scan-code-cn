@@ -8,7 +8,6 @@ import {
     StatusBar
 } from 'react-native'
 
-const ScanCodeManager = NativeModules.RNScanCode
 type EventCallbackArgumentsType = {
     nativeEvent: Object,
 };
@@ -18,12 +17,18 @@ const NativeBarCode = requireNativeComponent('RNScanCode', RNScanCode)
 export const ScanCodeModule = NativeModules.ScanCodeModule
 
 const EventThrottleMs = 500;
+
+
 export class RNScanCode extends React.Component {
     constructor(props) {
         super(props)
         this._lastEvents = {};
         this._lastEventsTimes = {};
     }
+
+    static Constants = {
+        CodeType: ScanCodeModule.CodeType
+    };
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
@@ -47,12 +52,13 @@ export class RNScanCode extends React.Component {
     };
 
     render() {
-        const { 
-            children, 
-            style, 
-            onLightBright, 
-            onBarCodeRead, 
-            ...otherProps 
+        const {
+            children,
+            style,
+            onLightBright,
+            onBarCodeRead,
+            codeTypes,
+            ...otherProps
         } = this.props
         const { width, height } = Dimensions.get('window')
         let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
@@ -62,6 +68,7 @@ export class RNScanCode extends React.Component {
                 <NativeBarCode
                     style={{ width, height: _height }}
                     {...otherProps}
+                    codeTypes={codeTypes}
                     onBarCodeRead={this._onObjectDetected(onBarCodeRead)}
                     onLightBright={this._onObjectDetected(onLightBright)}
                 />
