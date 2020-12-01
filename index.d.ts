@@ -1,8 +1,8 @@
 import { Component } from 'react';
-import { ViewProps, NativeModules } from 'react-native';
+import { ViewProps } from 'react-native';
 
 /** 支持的扫描码 */
-type BarCodeType = Readonly<{
+type CodeType = Readonly<{
     aztec: any;
     code128: any;
     code39: any;
@@ -16,16 +16,16 @@ type BarCodeType = Readonly<{
     interleaved2of5: any;
     itf14: any;
     datamatrix: any;
-}>;
+  }>;
 
 export interface Constants {
-    BarCodeType: BarCodeType;
+    CodeType: CodeType;
 }
 
 /** 扫描回调接口参数 */
 export interface BarCodeReadEvent {
     data: {
-        type: keyof BarCodeType;
+        type: keyof CodeType;
         code: string
     }
 }
@@ -33,10 +33,10 @@ export interface BarCodeReadEvent {
 export interface RNScanCodeProps extends ViewProps {
     // 扫码回调方法
     onBarCodeRead?(event: BarCodeReadEvent): void;
-    barCodeTypes?: Array<keyof BarCodeType>;
     onLightBright?: (num: string) => void;
     // 设置手电筒
     setFlashlight?(isOpen): void
+    codeTypes?: Array<keyof CodeType>;
 }
 
 

@@ -18,7 +18,7 @@ public class CodeReadEvent extends Event<CodeReadEvent> {
         mCodeType = type;
     }
 
-    private String getCodeType() {return mCodeType.toString(); }
+    private String getCodeType() {return mCodeType == null ? "null" : mCodeType.toString(); }
 
     private String getCodeResult() {
         return mCodeRes;

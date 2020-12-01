@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.reactlibrary.camera.CameraManager;
@@ -40,6 +41,7 @@ public class CaptureView extends FrameLayout implements Callback {
     private boolean hasSurface;
     // 支持的扫码类型,不赋值支持所有类型
     private Vector<BarcodeFormat> decodeFormats;
+    // 指定字符串的编码类型
     private String characterSet;
     // 识别码线程
     private InactivityTimer inactivityTimer;
@@ -94,7 +96,22 @@ public class CaptureView extends FrameLayout implements Callback {
 
             }
         };
+    }
 
+    /**
+     * 设置扫码类型
+     * @param codeTypes
+     */
+    public void setCodeTypes(ReadableArray codeTypes) {
+        if (codeTypes == null || codeTypes.size() == 0) {
+            return;
+        }
+        Vector<BarcodeFormat> result = new Vector<BarcodeFormat>(codeTypes.size());
+        for (int i = 0; i < codeTypes.size(); i++) {
+            BarcodeFormat format = BarcodeFormat.valueOf(codeTypes.getString(i));
+            result.add(format);
+        }
+        decodeFormats = result;
     }
 
     /**
@@ -149,13 +166,11 @@ public class CaptureView extends FrameLayout implements Callback {
         } else {
             surfaceHolder.addCallback(this);
         }
-        decodeFormats = new Vector<BarcodeFormat>();
-        decodeFormats.add(BarcodeFormat.QR_CODE);
-        characterSet = null;
     }
 
     /**
      * 初始化Camera
+     *
      * @param surfaceHolder
      */
     private void initCamera(SurfaceHolder surfaceHolder) {
@@ -174,13 +189,15 @@ public class CaptureView extends FrameLayout implements Callback {
 
     /**
      * 扫描结果
+     *
      * @param result
      */
     public void handleDecode(Result result) {
         inactivityTimer.onActivity();
         String resultString = result.getText();
         if (!TextUtils.isEmpty(resultString)) {
-            RNScanCodeHelper.emitScanCodeResultEvent(resultString, decodeFormats.get(0));
+            BarcodeFormat format = (decodeFormats == null || decodeFormats.size() == 0) ? null : decodeFormats.get(0);
+            RNScanCodeHelper.emitScanCodeResultEvent(resultString, format);
         }
     }
 
@@ -228,6 +245,7 @@ public class CaptureView extends FrameLayout implements Callback {
 
     /**
      * 设置闪光灯
+     *
      * @param isFlash
      */
     public static void setFlashlight(boolean isFlash) {
@@ -236,6 +254,7 @@ public class CaptureView extends FrameLayout implements Callback {
 
     /**
      * 重写手势
+     *
      * @param event
      * @return
      */
@@ -245,7 +264,6 @@ public class CaptureView extends FrameLayout implements Callback {
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_POINTER_DOWN:
                     mOldDist = TouchEventUtil.calculateFingerSpacing(event);
-//                    Log.d(TAG, "onTouchEvent: ACTION_POINTER_DOWN");
                     break;
                 case MotionEvent.ACTION_MOVE:
                     float newDist = TouchEventUtil.calculateFingerSpacing(event);
@@ -254,7 +272,7 @@ public class CaptureView extends FrameLayout implements Callback {
                         if (newDist > mOldDist) {
 //                        Log.d(TAG, "放大");
                             handleZoom(true, CameraManager.get().getCamera());
-                        } else{
+                        } else {
 //                        Log.d(TAG, "缩小");
                             handleZoom(false, CameraManager.get().getCamera());
                         }
@@ -268,6 +286,7 @@ public class CaptureView extends FrameLayout implements Callback {
 
     /**
      * 缩放
+     *
      * @param isZoomIn
      * @param camera
      */
@@ -275,13 +294,12 @@ public class CaptureView extends FrameLayout implements Callback {
         Camera.Parameters params = camera.getParameters();
         if (params.isZoomSupported()) {
             int zoom = params.getZoom();
-//            Log.d(TAG, "handleZoom: zoom = " + zoom + " : " + params.getMaxZoom());
             if (isZoomIn && zoom < params.getMaxZoom()) {
 //                Log.d(TAG, "handleZoom: 放大" + zoom);
                 zoom++;
             } else if (!isZoomIn && zoom >= 2) {
 //                Log.d(TAG, "handleZoom: 缩小" + zoom);
-                zoom-=2;
+                zoom -= 2;
             }
             params.setZoom(zoom);
             camera.setParameters(params);
