@@ -33,9 +33,11 @@ export interface BarCodeReadEvent {
 export interface RNScanCodeProps extends ViewProps {
     // 扫码回调方法
     onBarCodeRead?(event: BarCodeReadEvent): void;
+    // 光源回调
     onLightBright?: (num: string) => void;
     // 设置手电筒
-    setFlashlight?(isOpen): void
+    setFlashlight?(isOpen: boolean): void
+    // 扫码类型
     codeTypes?: Array<keyof CodeType>;
 }
 
