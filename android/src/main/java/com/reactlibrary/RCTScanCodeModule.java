@@ -41,6 +41,10 @@ public class RCTScanCodeModule extends ReactContextBaseJavaModule {
         CaptureView.setFlashlight(onFlash);
     }
 
+    /**
+     * 导出原生属性,供js调用
+     * @return
+     */
     @Nullable
     @Override
     public Map<String, Object> getConstants() {

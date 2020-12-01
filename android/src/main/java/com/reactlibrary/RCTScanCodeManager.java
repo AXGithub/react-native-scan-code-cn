@@ -82,6 +82,11 @@ public class RCTScanCodeManager extends SimpleViewManager<CaptureView> {
         return builder.build();
     }
 
+    /**
+     * 设置属性,参数要加@Nullable,否则会报错
+     * @param captureView
+     * @param codeTypes
+     */
     @ReactProp(name = "codeTypes")
     public void setCodeTypes(CaptureView captureView, @Nullable ReadableArray codeTypes) {
         captureView.setCodeTypes(codeTypes);
