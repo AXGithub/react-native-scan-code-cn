@@ -94,7 +94,7 @@ export class RNScanCode extends React.Component {
                     onLightBright={this._onObjectDetected(onLightBright)}
                     ref={this._setReference}
                 />
-                <View style={[{ position: 'absolute', top: 0, left: 0 }, style]}>
+                <View style={[{ position: 'absolute', top: 0, left: 0 }, style]} pointerEvents="box-none">
                     {children}
                 </View>
             </View>
