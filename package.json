@@ -14,9 +14,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bugs": {
+    "url": "https://github.com/JedShiMing/react-native-scan-code-cn/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.x.yunio.com/app/react-native/plugin/react-native-scan-code.git"
+    "url": "https://github.com/JedShiMing/react-native-scan-code-cn"
   },
   "keywords": [
     "react-native",
