@@ -62,11 +62,15 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
 /** 打开、关闭手电筒 */
 RCT_EXPORT_METHOD(setFlashlight:(nonnull NSNumber *)reactTag isOpen:(BOOL)isOpen){
     [self.bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *,ScanCode *> *viewRegistry) {
-        ScanCode *view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[ScanCode class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+        if (reactTag == nil) {
+            RCTLogError(@"Invalid view returned from registry, expecting ScanCode");
         } else {
-            [view setFlashlight:isOpen];
+            ScanCode *view = viewRegistry[reactTag];
+            if (![view isKindOfClass:[ScanCode class]]) {
+                RCTLogError(@"Invalid view returned from registry, expecting ScanCode, got: %@", view);
+            } else {
+                [view setFlashlight:isOpen];
+            }
         }
     }];
 }

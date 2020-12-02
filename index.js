@@ -15,29 +15,29 @@ type EventCallbackArgumentsType = {
 
 const NativeBarCode = requireNativeComponent('RNScanCode', RNScanCode)
 
-export const ScanCodeModule = NativeModules.ScanCodeModule
+export const ScanCodeModule = NativeModules.ScanCodeModule || NativeModules.RNScanCodeManager
 
 const EventThrottleMs = 500;
 
+let _this = null
 
 export class RNScanCode extends React.Component {
     constructor(props) {
         super(props)
         this._lastEvents = {};
         this._lastEventsTimes = {};
+        _this = this
     }
 
     static Constants = {
-        CodeType: ScanCodeModule.CodeType
     };
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
     // 存储组件实例的tag值
-    _scancodeHandle: ?number;
+    _scancodeHandle: ?number = 0;
 
     _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
-        // console.log('nativeEvent====',nativeEvent)
         const { type } = nativeEvent;
         if (
             this._lastEvents[type] &&
@@ -57,18 +57,18 @@ export class RNScanCode extends React.Component {
     /** 查找对应组件实例的tag值 */
     _setReference = (ref: ?Object) => {
         if (ref) {
-          this._scancodeHandle = findNodeHandle(ref);
+            this._scancodeHandle = findNodeHandle(ref);
         } else {
-          this._scancodeHandle = null;
+            this._scancodeHandle = null;
         }
     }
 
     /** 设置手电筒 */
-    setFlashlight(flash) {
+    static setFlashlight(flash) {
         if (Platform.OS === 'ios') {
-            ScanCodeManager.setFlashlight(this._scancodeHandle, flash)
+            ScanCodeModule.setFlashlight(_this._scancodeHandle, flash)
         } else {
-            ScanCodeManager.setFlashlight(flash)
+            ScanCodeModule.setFlashlight(flash)
         }
     }
 
