@@ -1,11 +1,7 @@
 package com.reactlibrary;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Application;
-import android.graphics.Color;
 import android.hardware.Camera;
-import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,18 +10,15 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.reactlibrary.camera.AspectRatio;
 import com.reactlibrary.camera.CameraManager;
 import com.reactlibrary.decoding.CaptureActivityHandler;
 import com.reactlibrary.decoding.InactivityTimer;
@@ -41,7 +34,6 @@ import java.util.Vector;
  */
 public class CaptureView extends FrameLayout implements Callback, LifecycleEventListener {
     private static final String TAG = "CaptureView";
-    AspectRatio DEFAULT_ASPECT_RATIO = AspectRatio.of(4, 3);
     private CaptureActivityHandler handler;
     private Activity activity;
     private boolean hasSurface;
