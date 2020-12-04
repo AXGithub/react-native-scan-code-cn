@@ -31,11 +31,18 @@ Linking (for React Native < 0.60 only)
 <string>Your own description of the purpose</string>
 ```
 
+## Property
+Prop | Type | Default | Note
+---|---|---|---
+codeTypes | Array<string> | all | 设置扫码类型
+onBarCodeRead | callback() | | 扫码结果回调
+onLightBright | callback() | | 当前后置摄像头光源回调
+setFlashlight | function | | 设置手电筒开关
+
+
 ## Usage
-
 Make sure permissions are turned on before using
-
-```javaScript
+```js
 import { RNScanCode } from 'react-native-scan-code-cn'
 
 const AMBIENT_BRIGHTNESS_DARK = Platform.OS === 'ios' ? 0 : 60
@@ -64,23 +71,10 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
     }, [])
 
     function barcodeReceived(e) {
-        HapticFeedbackService.trigger()
-        if (e.code) {
-            if (e.code === 'pay1' || e.code === 'pay2') {
-                let data = DataSource[e.code]
-                paymentStore.setPaymentInfo(data)
-            } else {
-                let data = DataSource['pay1']
-                paymentStore.setPaymentInfo(data)
-            }
-        } else {
-            let data = DataSource['pay1']
-            paymentStore.setPaymentInfo(data)
-        }
-        navigation.navigate('PaymentOptionsScreen')
-        onclose()
+        // 扫描结果
     }
 
+    // 手电筒逻辑
     function FlashView() {
         return flashlightType === 'open' ? (
             <TouchableOpacity
@@ -124,8 +118,8 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
                     }
                 }}
             >
+                {/* 子组件 */}
                 <View style={style.scanView} pointerEvents="none">
-                    <Image source={IconAsset.scanFrame} style={style.scanImg} />
                     <View style={style.scanAnimateView}>
                         <Animated.View
                             style={{
@@ -135,11 +129,7 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
                                     }
                                 ]
                             }}
-                        >
-                            <ShadowView style={style.animatedShadow}>
-                                <View style={style.animatedStyle} />
-                            </ShadowView>
-                        </Animated.View>
+                        />
                     </View>
                 </View>
                 {isFlashlight && <FlashView />}
@@ -147,4 +137,11 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
         </View>
     )
 }
+```
+
+<font color="red" size="7px">子组件使用事项</font>
+
+由于创建子视图会影响iOS捏合手势(缩放)功能,所以在需要缩放的组件添加
+```
+pointerEvents="none"
 ```
