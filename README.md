@@ -23,8 +23,13 @@ Linking (for React Native < 0.60 only)
 <uses-permission android:name="android.permission.CAMERA" />
 ```
 
-- ios 
+- iOS 
 1. run `npx pod-install`
+2. On iOS, you must update Info.plist with a usage description for camera
+```
+<key>NSCameraUsageDescription</key>
+<string>Your own description of the purpose</string>
+```
 
 ## Usage
 
@@ -34,6 +39,7 @@ Make sure permissions are turned on before using
 import { RNScanCode } from 'react-native-scan-code-cn'
 
 <RNScanCode
+    codeTypes={[RNScanCode.Constants.CodeType.qr]}
     onBarCodeRead={res => {
         console.log('扫码结果 = ', res)
     }}
