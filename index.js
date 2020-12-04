@@ -30,7 +30,9 @@ export class RNScanCode extends React.Component {
     }
 
     static Constants = {
+        CodeType: ScanCodeModule.CodeType
     };
+
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
@@ -78,14 +80,13 @@ export class RNScanCode extends React.Component {
             style,
             onLightBright,
             onBarCodeRead,
-            codeTypes,
+            codeTypes = Object.values(ScanCodeModule.CodeType),
             ...otherProps
         } = this.props
         const { width, height } = Dimensions.get('window')
         let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
-
         return (
-            <View style={{ flex: 1, backgroundColor: 'green' }}>
+            <View style={{ flex: 1, backgroundColor: '#000' }}>
                 <NativeBarCode
                     style={{ width, height: _height }}
                     {...otherProps}

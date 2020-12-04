@@ -1,7 +1,11 @@
 #import "ScanCode.h"
 
-@interface ScanCode ()
+#define MaxSCale 5.0  //最大缩放比例
+#define MinScale 1.0  //最小缩放比例
 
+@interface ScanCode ()
+/** 捏合手势 */
+@property (nonatomic, strong) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @end
 
 @implementation ScanCode
@@ -21,6 +25,7 @@
     [self stopSession];
 }
 
+/** 创建取景器视图 */
 - (void)layoutSubviews{
     [super layoutSubviews];
     self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
@@ -28,6 +33,41 @@
     self.previewLayer.frame = self.bounds;
     [self setBackgroundColor:[UIColor blackColor]];
     [self.layer insertSublayer:self.previewLayer atIndex:0];
+    self.pinchGestureRecognizer = [self createUIPinchGestureRecognizer];
+    [self addGestureRecognizer:self.pinchGestureRecognizer];
+}
+
+/** 创建捏合手势 */
+- (UIPinchGestureRecognizer*)createUIPinchGestureRecognizer{
+    return [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
+}
+
+/** 捏合手势方法 */
+- (void)handlePinchToZoomRecognizer:(UIPinchGestureRecognizer *)pinchRecognizer{
+    // 控制捏合速度
+    const CGFloat pinchVelocityDividerFactor = 10.0f;
+
+    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+        AVCaptureDevice *device = [self.input device];
+        if(device == nil){
+            return;
+        }
+        NSError *error = nil;
+        float maxZoom = [self getMaxZoomFactor:device];
+        if ([device lockForConfiguration:&error]) {
+            CGFloat desiredZoomFactor = device.videoZoomFactor + atan2f(pinchRecognizer.velocity, pinchVelocityDividerFactor);
+            // Check if desiredZoomFactor fits required range from 1.0 to activeFormat.videoMaxZoomFactor
+            device.videoZoomFactor = MAX(MinScale, MIN(desiredZoomFactor, maxZoom));
+            [device unlockForConfiguration];
+        } else {
+            NSLog(@"error: %@", error);
+        }
+    }
+}
+
+/** 设置捏合最大比例 */
+- (float)getMaxZoomFactor:(AVCaptureDevice*)device {
+    return MIN(MaxSCale, device.activeFormat.videoMaxZoomFactor);
 }
 
 #pragma mark - 初始化扫码
@@ -47,7 +87,7 @@
     // 采集高质量
     [self.session setSessionPreset:AVCaptureSessionPresetHigh];
     
-    // 设置相机取景器大小，要不然会黑屏
+    // 设置相机取景器，要不然会黑屏
     self.previewLayer =
     [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     
@@ -56,9 +96,6 @@
     if (self.device == nil) {
         return;
     }
-    
-    // 开始扫码
-    [self startSession];
     
 #endif
     return;
@@ -105,8 +142,7 @@
                 [self.metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
                 [self.session addOutput:self.metadataOutput];
                 // 设置输出类型 有二维码 条形码等
-                // [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
-                [self.metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
+                [self setScanCodeType];
                 // 设置全屏扫描
                 output.rectOfInterest = CGRectMake(0, 0, 1.0, 1.0);
             }
@@ -140,23 +176,34 @@
 #endif
 }
 
-// 扫描回调方法
+/** 设置扫码类型 */
+- (void)setScanCodeType{
+    NSArray<AVMetadataObjectType> *codeTypes = [[NSArray alloc] init];
+    NSArray<AVMetadataObjectType> *paramsCodeTypes = [NSArray arrayWithArray:self.codeTypes];
+    NSArray<AVMetadataObjectType> *availableObjectTypes = self.metadataOutput.availableMetadataObjectTypes;
+    
+    for (AVMetadataObjectType objectType in paramsCodeTypes) {
+        if ([availableObjectTypes containsObject:objectType]) {
+            codeTypes = [codeTypes arrayByAddingObject:objectType];
+        }
+    }
+    [self.metadataOutput setMetadataObjectTypes:codeTypes];
+}
+
+#pragma mark - AVCaptureMetadataOutputObjectsDelegate
+/** 扫描回调方法 */
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection{
     
     for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
-//        for (id barcodeType in self.barCodeTypes) {
-//            if ([metadata.type isEqualToString:barcodeType]) {
-                if (self.onBarCodeRead) {
-                    // 这就是扫描的结果
-                    self.onBarCodeRead(@{
-                        @"data": @{
-                                @"type": metadata.type,
-                                @"code": metadata.stringValue
-                        }});
-                    [self.session stopRunning];
-                }
-//            }
-//        }
+        if (self.onBarCodeRead) {
+            // 这就是扫描的结果
+            self.onBarCodeRead(@{
+                @"data": @{
+                        @"type": metadata.type,
+                        @"code": metadata.stringValue
+                }});
+            [self.session stopRunning];
+        }
     }
 }
 
@@ -170,11 +217,15 @@
     NSDictionary *exifMetadata = [[metadata objectForKey:(NSString *)kCGImagePropertyExifDictionary] mutableCopy];
     float brightnessValue = [[exifMetadata objectForKey:(NSString *)kCGImagePropertyExifBrightnessValue] floatValue];
     
-    NSLog(@"环境光感 ： %f",brightnessValue);
     if (self.onLightBright) {
         self.onLightBright(@{@"light": @(brightnessValue)});
     }
-    
+}
+
+- (void)setCodeTypes:(NSArray *)codeTypes{
+    _codeTypes = codeTypes;
+    // 开始扫码
+    [self startSession];
 }
 
 @end

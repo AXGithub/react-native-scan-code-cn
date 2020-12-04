@@ -33,7 +33,7 @@ RCT_EXPORT_MODULE(RNScanCodeManager)
 /** 导出常量 */
 - (NSDictionary *)constantsToExport{
     return @{
-            @"barCodeTypes": @{
+            @"CodeType": @{
                  @"upce": AVMetadataObjectTypeUPCECode,
                  @"code39": AVMetadataObjectTypeCode39Code,
                  @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
@@ -56,8 +56,8 @@ RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
 /** 光源感应回调 */
 RCT_EXPORT_VIEW_PROPERTY(onLightBright, RCTDirectEventBlock);
 /** 二维码类型 */
-RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, ScanCode) {
-    [view setBarCodeTypes:[RCTConvert NSArray:json]];
+RCT_CUSTOM_VIEW_PROPERTY(codeTypes, NSArray, ScanCode) {
+    [view setCodeTypes:[RCTConvert NSArray:json]];
 }
 /** 打开、关闭手电筒 */
 RCT_EXPORT_METHOD(setFlashlight:(nonnull NSNumber *)reactTag isOpen:(BOOL)isOpen){
