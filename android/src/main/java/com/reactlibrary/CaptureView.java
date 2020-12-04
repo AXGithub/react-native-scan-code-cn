@@ -1,7 +1,9 @@
 package com.reactlibrary;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,15 +14,18 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.reactlibrary.camera.AspectRatio;
 import com.reactlibrary.camera.CameraManager;
 import com.reactlibrary.decoding.CaptureActivityHandler;
 import com.reactlibrary.decoding.InactivityTimer;
@@ -34,8 +39,9 @@ import java.util.Vector;
 /**
  * 扫码主页
  */
-public class CaptureView extends FrameLayout implements Callback {
+public class CaptureView extends FrameLayout implements Callback, LifecycleEventListener {
     private static final String TAG = "CaptureView";
+    AspectRatio DEFAULT_ASPECT_RATIO = AspectRatio.of(4, 3);
     private CaptureActivityHandler handler;
     private Activity activity;
     private boolean hasSurface;
@@ -45,61 +51,23 @@ public class CaptureView extends FrameLayout implements Callback {
     private String characterSet;
     // 识别码线程
     private InactivityTimer inactivityTimer;
-    // 暂停事件
-    private Application.ActivityLifecycleCallbacks cb;
     // 两指距离
     private float mOldDist = 1f;
+    private ReactContext context;
 
     public CaptureView(Activity activity, @NonNull ReactContext context) {
         super(context);
         this.activity = activity;
+        this.context = context;
         LayoutInflater.from(context).inflate(R.layout.activity_scanner, this);
         CameraManager.init(activity.getApplication());
-        hasSurface = false;
-        inactivityTimer = new InactivityTimer(context.getCurrentActivity());
         RNScanCodeHelper.setView(this);
         // 进程状态切换监听器
-        cb = new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-
-            }
-
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {
-                // 扫码期间暂停,应当停止扫码进程和视频流
-                capture_onPause();
-            }
-
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {
-
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-
-            }
-
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {
-
-            }
-        };
     }
 
     /**
      * 设置扫码类型
+     *
      * @param codeTypes
      */
     public void setCodeTypes(ReadableArray codeTypes) {
@@ -119,11 +87,11 @@ public class CaptureView extends FrameLayout implements Callback {
      */
     @Override
     protected void onAttachedToWindow() {
-        init();
-        if (activity != null) {
-            activity.getApplication().registerActivityLifecycleCallbacks(cb);
-        }
         super.onAttachedToWindow();
+        context.addLifecycleEventListener(this);
+        hasSurface = false;
+        inactivityTimer = new InactivityTimer(context.getCurrentActivity());
+        init();
     }
 
     /**
@@ -131,17 +99,14 @@ public class CaptureView extends FrameLayout implements Callback {
      */
     @Override
     protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        context.removeLifecycleEventListener(this);
         inactivityTimer.shutdown();
         if (handler != null) {
             handler.quitSynchronously();
             handler = null;
         }
         CameraManager.get().closeDriver();
-        if (activity != null) {
-            activity.getApplication().unregisterActivityLifecycleCallbacks(cb);
-        }
-        super.onDetachedFromWindow();
-
     }
 
     /**
@@ -173,18 +138,24 @@ public class CaptureView extends FrameLayout implements Callback {
      *
      * @param surfaceHolder
      */
-    private void initCamera(SurfaceHolder surfaceHolder) {
-        try {
-            CameraManager.get().openDriver(surfaceHolder);
-        } catch (IOException ioe) {
-            return;
-        } catch (RuntimeException e) {
-            return;
-        }
-        if (handler == null) {
-            handler = new CaptureActivityHandler(this, decodeFormats,
-                    characterSet);
-        }
+    private void initCamera(final SurfaceHolder surfaceHolder) {
+        //加点延时使打开不卡顿
+        post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    CameraManager.get().openDriver(surfaceHolder);
+                } catch (IOException ioe) {
+                    return;
+                } catch (RuntimeException e) {
+                    return;
+                }
+                if (handler == null) {
+                    handler = new CaptureActivityHandler(CaptureView.this, decodeFormats,
+                            characterSet);
+                }
+            }
+        });
     }
 
     /**
@@ -204,10 +175,12 @@ public class CaptureView extends FrameLayout implements Callback {
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                int height) {
+        Log.d("CaptureView", "surfaceChanged surfaceChanged");
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.d("CaptureView", "surfaceCreated surfaceCreated");
         if (!hasSurface) {
             hasSurface = true;
             initCamera(holder);
@@ -225,23 +198,6 @@ public class CaptureView extends FrameLayout implements Callback {
         return handler;
     }
 
-    /**
-     * 自适应大小
-     */
-    @Override
-    public void requestLayout() {
-        super.requestLayout();
-        post(measureAndLayout);
-    }
-
-    private final Runnable measureAndLayout = new Runnable() {
-        @Override
-        public void run() {
-            measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
-            layout(getLeft(), getTop(), getRight(), getBottom());
-        }
-    };
 
     /**
      * 设置闪光灯
@@ -267,13 +223,13 @@ public class CaptureView extends FrameLayout implements Callback {
                     break;
                 case MotionEvent.ACTION_MOVE:
                     float newDist = TouchEventUtil.calculateFingerSpacing(event);
-//                    Log.d(TAG, "onTouchEvent: newDist = " + newDist + " : mOldDist = " + mOldDist);
+                    //                    Log.d(TAG, "onTouchEvent: newDist = " + newDist + " : mOldDist = " + mOldDist);
                     if (Math.abs(newDist - mOldDist) > 3) {
                         if (newDist > mOldDist) {
-//                        Log.d(TAG, "放大");
+                            //                        Log.d(TAG, "放大");
                             handleZoom(true, CameraManager.get().getCamera());
                         } else {
-//                        Log.d(TAG, "缩小");
+                            //                        Log.d(TAG, "缩小");
                             handleZoom(false, CameraManager.get().getCamera());
                         }
                         mOldDist = newDist;
@@ -295,14 +251,52 @@ public class CaptureView extends FrameLayout implements Callback {
         if (params.isZoomSupported()) {
             int zoom = params.getZoom();
             if (isZoomIn && zoom < params.getMaxZoom()) {
-//                Log.d(TAG, "handleZoom: 放大" + zoom);
+                //                Log.d(TAG, "handleZoom: 放大" + zoom);
                 zoom++;
             } else if (!isZoomIn && zoom >= 2) {
-//                Log.d(TAG, "handleZoom: 缩小" + zoom);
+                //                Log.d(TAG, "handleZoom: 缩小" + zoom);
                 zoom -= 2;
             }
             params.setZoom(zoom);
             camera.setParameters(params);
         }
+    }
+
+//    @Override
+//    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+//        super.onLayout(changed, left, top, right, bottom);
+//        Log.d("CaptureView", "onLayout onLayout left : " + left + " top : " + top + " right : " + right + " bottom : " + bottom);
+//
+//        View preview = findViewById(R.id.scanner_view);
+//        if (null == preview) {
+//            return;
+//        }
+//        int width = right - left;
+//        int height = bottom - top;
+//        //        Log.d("CaptureView", "onLayout onLayout correctWidth : " + correctWidth + " correctHeight : " + correctHeight + " paddingX : " + paddingX + " paddingY : " + paddingY);
+//        preview.layout(0, 0, width, height);
+//    }
+
+//    /**
+    //     * 自适应大小
+    //     */
+    //    @SuppressLint("all")
+    //    @Override
+    //    public void requestLayout() {
+    //        //        super.requestLayout();
+    //    }
+
+    @Override
+    public void onHostResume() {
+    }
+
+    @Override
+    public void onHostPause() {
+        // 扫码期间暂停,应当停止扫码进程和视频流
+        capture_onPause();
+    }
+
+    @Override
+    public void onHostDestroy() {
     }
 }

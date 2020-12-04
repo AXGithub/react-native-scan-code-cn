@@ -9,7 +9,8 @@ import {
     findNodeHandle
 } from 'react-native'
 
-type EventCallbackArgumentsType = {
+type
+EventCallbackArgumentsType = {
     nativeEvent: Object,
 };
 
@@ -27,20 +28,23 @@ export class RNScanCode extends React.Component {
         this._lastEvents = {};
         this._lastEventsTimes = {};
         _this = this
+        const {width, height} = Dimensions.get('window')
+        let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
+        this.state = {
+            surfaceWidth: width,
+            surfaceHeight: _height
+        };
     }
 
-    static Constants = {
-        CodeType: ScanCodeModule.CodeType
-    };
-
+    static Constants = {};
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
     // 存储组件实例的tag值
     _scancodeHandle: ?number = 0;
 
-    _onObjectDetected = (callback: ?Function) => ({ nativeEvent }: EventCallbackArgumentsType) => {
-        const { type } = nativeEvent;
+    _onObjectDetected = (callback: ?Function) => ({nativeEvent}: EventCallbackArgumentsType) => {
+        const {type} = nativeEvent;
         if (
             this._lastEvents[type] &&
             this._lastEventsTimes[type] &&
@@ -80,22 +84,23 @@ export class RNScanCode extends React.Component {
             style,
             onLightBright,
             onBarCodeRead,
-            codeTypes = Object.values(ScanCodeModule.CodeType),
+            codeTypes,
             ...otherProps
         } = this.props
-        const { width, height } = Dimensions.get('window')
-        let _height = height + (Platform.OS === 'ios' ? 0 : StatusBar.currentHeight)
+        const {surfaceWidth, surfaceHeight} = this.state
         return (
-            <View style={{ flex: 1, backgroundColor: '#000' }}>
+            <View style={{flex: 1, backgroundColor: 'green'}} onLayout={event => {
+                this.setState({surfaceHeight: event.nativeEvent.layout.height})
+            }}>
                 <NativeBarCode
-                    style={{ width, height: _height }}
+                    style={{width: surfaceWidth, height: surfaceHeight}}
                     {...otherProps}
                     codeTypes={codeTypes}
                     onBarCodeRead={this._onObjectDetected(onBarCodeRead)}
                     onLightBright={this._onObjectDetected(onLightBright)}
                     ref={this._setReference}
                 />
-                <View style={[{ position: 'absolute', top: 0, left: 0 }, style]} pointerEvents="box-none">
+                <View style={[{position: 'absolute', top: 0, left: 0}, style]} pointerEvents="box-none">
                     {children}
                 </View>
             </View>
