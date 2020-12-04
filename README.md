@@ -4,7 +4,7 @@
 ### 1. Installation
 Using Npm
 
-`$ npm install react-native-scan-code-cn --save`
+`npm install react-native-scan-code-cn --save`
 
 Using Yarn
 
@@ -40,7 +40,7 @@ onLightBright | callback() | | 当前后置摄像头光源回调
 setFlashlight | function | | 设置手电筒开关
 
 
-## Usage
+## Examples
 Make sure permissions are turned on before using
 ```js
 import React, { useState, useEffect } from 'react'
@@ -89,7 +89,7 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
                     setFlashlightType('close')
                 }}
             >
-                <Text>打开</Text>
+                <Text>open</Text>
             </TouchableOpacity>
         ) : (
                 <TouchableOpacity
@@ -100,7 +100,7 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
                         setFlashlightType('open')
                     }}
                 >
-                    <Text>关闭</Text>
+                    <Text>close</Text>
                 </TouchableOpacity>
             )
     }
@@ -112,7 +112,7 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
                 codeTypes={[RNScanCode.Constants.CodeType.qr]}
                 onBarCodeRead={barcodeReceived}
                 onLightBright={(data: any) => {
-                    console.log('当前的光源= ', data.light)
+                    console.log('light = ', data.light)
                     if (!onFlash) {
                         if (Number(data.light) < AMBIENT_BRIGHTNESS_DARK) {
                             setIsFlashlight(true)
@@ -122,7 +122,6 @@ const ScanQrcodeScreen = ({ navigation, onclose }) => {
                     }
                 }}
             >
-                {/* 子组件 */}
                 <View style={style.scanView} pointerEvents="none">
                     <View style={style.scanAnimateView}>
                         <Animated.View
@@ -168,9 +167,11 @@ const style = StyleSheet.create({
 })
 ```
 
-<font color="red" size="7px">子组件使用事项</font>
+https://github.com/JedShiMing/scan-code-demo
 
-由于创建子视图会影响iOS捏合手势(缩放)功能,所以在需要缩放的组件添加
+## Troubleshooting
+#### 1. ios can't zoom
+Add to the component
 ```
 pointerEvents="none"
 ```
