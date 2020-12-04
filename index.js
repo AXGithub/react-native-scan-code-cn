@@ -36,7 +36,9 @@ export class RNScanCode extends React.Component {
         };
     }
 
-    static Constants = {};
+    static Constants = {
+        CodeType: ScanCodeModule.CodeType
+    };
 
     _lastEvents: { [string]: string };
     _lastEventsTimes: { [string]: Date };
@@ -84,7 +86,7 @@ export class RNScanCode extends React.Component {
             style,
             onLightBright,
             onBarCodeRead,
-            codeTypes,
+            codeTypes = Object.values(ScanCodeModule.CodeType),
             ...otherProps
         } = this.props
         const {surfaceWidth, surfaceHeight} = this.state
